@@ -326,7 +326,6 @@ export default async function handler(request) {
   }
   
   // Get action from query parameter
-  const url = new URL(request.url);
   const action = url.searchParams.get('action');
   
   // Get client IP for rate limiting
