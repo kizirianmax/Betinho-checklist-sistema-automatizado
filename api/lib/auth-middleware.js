@@ -10,11 +10,11 @@ import crypto from 'crypto';
 let JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  console.warn('⚠️ JWT_SECRET not set. Auto-generating. Set environment variable for production.');
-  // Generate a secure random secret (64 characters)
-  JWT_SECRET = Array.from({ length: 64 }, () => 
-    Math.random().toString(36).charAt(2) || 'x'
-  ).join('');
+  console.warn('⚠️ JWT_SECRET not set. Auto-generating random secret.');
+  console.warn('⚠️ WARNING: Auto-generated secret changes on each cold start, invalidating all existing tokens.');
+  console.warn('⚠️ Set JWT_SECRET environment variable in production for token persistence.');
+  // Generate a cryptographically secure random secret (64 hex characters = 32 bytes)
+  JWT_SECRET = crypto.randomBytes(32).toString('hex');
 }
 const TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 

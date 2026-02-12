@@ -14,11 +14,19 @@
         .test { margin: 20px 0; padding: 15px; border: 1px solid #333; }
         .success { color: #00ff00; }
         .error { color: #ff0000; }
+        .warning { color: #ff9900; background: #2a2a2a; padding: 15px; border: 2px solid #ff9900; margin: 20px 0; }
         button { padding: 10px 20px; margin: 5px; }
+        input { padding: 8px; margin: 5px; width: 250px; background: #333; color: #fff; border: 1px solid #555; }
     </style>
 </head>
 <body>
     <h1>🔧 Debug do Sistema de Autenticação</h1>
+    
+    <div class="warning">
+        <strong>⚠️ ATENÇÃO DE SEGURANÇA:</strong><br>
+        Esta página é apenas para desenvolvimento/testes. Não use credenciais reais em produção.
+        Recomenda-se proteger ou remover esta página em ambientes de produção.
+    </div>
     
     <div class="test">
         <h2>1. Test API Health</h2>
@@ -28,7 +36,9 @@
     
     <div class="test">
         <h2>2. Test Login</h2>
-        <button onclick="testLogin()">Test Login (default credentials)</button>
+        <input type="email" id="test-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="test-password" placeholder="Password" value="password123">
+        <button onclick="testLogin()">Test Login</button>
         <pre id="login-result"></pre>
     </div>
     
@@ -64,6 +74,8 @@
 
         async function testLogin() {
             const result = document.getElementById('login-result');
+            const email = document.getElementById('test-email').value;
+            const password = document.getElementById('test-password').value;
             result.textContent = 'Testing...';
             
             try {
@@ -71,10 +83,7 @@
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     credentials: 'include',
-                    body: JSON.stringify({
-                        email: 'robertokizirian@gmail.com',
-                        password: 'Betinho@2026'
-                    })
+                    body: JSON.stringify({ email, password })
                 });
                 
                 const data = await response.json();
@@ -86,7 +95,8 @@
                 }, null, 2);
             } catch (error) {
                 result.className = 'error';
-                result.textContent = 'ERROR: ' + error.message + '\nStack: ' + error.stack;
+                // Only show error message, not stack trace for security
+                result.textContent = 'ERROR: ' + error.message;
             }
         }
 

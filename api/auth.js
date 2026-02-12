@@ -298,10 +298,13 @@ async function handleVerifySession(request) {
  * Main handler for Vercel serverless function
  */
 export default async function handler(request) {
-  // Set CORS headers
-  const origin = request.headers.get('origin') || '*';
+  // Set CORS headers with origin validation
+  const requestOrigin = request.headers.get('origin');
+  const url = new URL(request.url);
+  const isSameOrigin = requestOrigin && new URL(requestOrigin).origin === url.origin;
+  
   const headers = {
-    'Access-Control-Allow-Origin': origin,
+    'Access-Control-Allow-Origin': isSameOrigin ? requestOrigin : url.origin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     'Access-Control-Allow-Credentials': 'true',
