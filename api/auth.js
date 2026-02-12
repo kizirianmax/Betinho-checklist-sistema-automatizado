@@ -70,11 +70,13 @@ function clearLoginAttempts(ip) {
  * Handle login request
  */
 async function handleLogin(request, ip) {
-  console.log('[AUTH] Login attempt from IP:', ip);
+  console.log('🔑 [AUTH] Login attempt from IP:', ip);
+  
   try {
     const body = await request.json();
-    console.log('[AUTH] Login request received for:', body.email);
     const { email, password } = body;
+    
+    console.log('📧 [AUTH] Login request for email:', email);
     
     // Validate input
     if (!email || !password) {
@@ -104,9 +106,11 @@ async function handleLogin(request, ip) {
     }
     
     // Verify credentials
+    console.log('🔐 [AUTH] Verifying credentials...');
     const isValid = verifyPassword(email, password);
     
     if (!isValid) {
+      console.log('❌ [AUTH] Invalid credentials');
       recordLoginAttempt(ip);
       return new Response(
         JSON.stringify({
@@ -133,6 +137,9 @@ async function handleLogin(request, ip) {
     // Update last login
     updateLastLogin(email);
     
+    console.log('✅ [AUTH] Login successful for:', email);
+    console.log('🎫 [AUTH] Creating JWT token...');
+    
     // Create JWT token
     const token = createToken({
       email: user.email,
@@ -140,7 +147,6 @@ async function handleLogin(request, ip) {
       permissions: user.permissions
     });
     
-    console.log('[AUTH] Login successful for:', user.email);
     // Set cookie and return response
     return new Response(
       JSON.stringify({

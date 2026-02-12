@@ -51,6 +51,10 @@
     {
       "source": "/debug",
       "destination": "/public/debug.html"
+    },
+    {
+      "source": "/test-credentials",
+      "destination": "/api/test-credentials.js"
     }
   ]
 }
