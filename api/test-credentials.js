@@ -48,15 +48,13 @@ export default async function handler(request) {
         debug: {
           userEmail: user.email,
           saltLength: user.salt.length,
-          saltPreview: user.salt.substring(0, 20) + '...',
+          saltPreview: user.salt.substring(0, 10) + '...',
           passwordHashMatches: testHash === user.passwordHash,
-          verifyPasswordResult: isValid,
-          expectedEmail: testEmail,
-          expectedPassword: '***' // Don't expose password in response
+          verifyPasswordResult: isValid
         },
         message: isValid 
           ? '✅ Credentials are working correctly!' 
-          : '❌ Credentials verification failed - check logs'
+          : '❌ Credentials verification failed - check server logs for details'
       }, null, 2),
       {
         status: 200,

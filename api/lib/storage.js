@@ -31,7 +31,7 @@ function initializeOwner() {
   // When the user changes their password, a random salt will be generated.
   // 
   // You can override this by setting OWNER_SALT environment variable
-  const salt = process.env.OWNER_SALT || 'betinho2026fixedsaltfordefaultowner1234567890abcdef'; // 48 chars (hex format)
+  const salt = process.env.OWNER_SALT || 'betinho2026fixedsaltfordefaultowner1234567890abcdef'; // 51 chars
   
   const hash = crypto.pbkdf2Sync(defaultPassword, salt, 10000, 64, 'sha512').toString('hex');
   
