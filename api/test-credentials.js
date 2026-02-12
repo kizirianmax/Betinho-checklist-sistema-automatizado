@@ -1,8 +1,8 @@
 /**
  * Test Credentials Endpoint - FOR DEBUGGING ONLY
  * 
- * This endpoint tests if the default credentials are working
- * ⚠️ DELETE THIS FILE IN PRODUCTION!
+ * This endpoint tests if the default credentials are working with Firebase
+ * ⚠️ DELETE THIS FILE AFTER TESTING IN PRODUCTION!
  * 
  * Usage: GET /api/test-credentials
  */
@@ -23,10 +23,10 @@ export default async function handler(request) {
   }
 
   try {
-    console.log('🧪 [TEST] Running credentials test...');
+    console.log('🧪 [TEST] Running credentials test with Firebase...');
     
-    // Get user data
-    const user = getUserData();
+    // Get user data from Firebase
+    const user = await getUserData('robertokizirian@gmail.com');
     
     // Test credentials
     const testEmail = 'robertokizirian@gmail.com';
@@ -36,7 +36,7 @@ export default async function handler(request) {
     console.log('🧪 [TEST] Testing password:', testPassword);
     
     // Verify using the actual verification function
-    const isValid = verifyPassword(testEmail, testPassword);
+    const isValid = await verifyPassword(testEmail, testPassword);
     
     // Generate test hash for comparison
     const testHash = crypto.pbkdf2Sync(testPassword, user.salt, 10000, 64, 'sha512').toString('hex');
@@ -45,6 +45,7 @@ export default async function handler(request) {
     const result = {
       success: true,
       timestamp: new Date().toISOString(),
+      storage: 'Firebase Firestore',
       credentials: {
         expectedEmail: testEmail,
         expectedPassword: testPassword
@@ -52,7 +53,9 @@ export default async function handler(request) {
       userInfo: {
         email: user.email,
         role: user.role,
-        emailMatches: user.email === testEmail
+        emailMatches: user.email === testEmail,
+        lastLogin: user.lastLogin,
+        passwordChangedAt: user.passwordChangedAt
       },
       verification: {
         verifyPasswordResult: isValid,
@@ -61,8 +64,8 @@ export default async function handler(request) {
         saltPreview: user.salt.substring(0, 30) + '...'
       },
       status: isValid 
-        ? '✅ CREDENTIALS WORKING - You can login!' 
-        : '❌ CREDENTIALS NOT WORKING - Check logs for details'
+        ? '✅ CREDENTIALS WORKING - Login should succeed via Firebase!' 
+        : '❌ CREDENTIALS NOT WORKING - Check Firebase logs for details'
     };
     
     console.log('🧪 [TEST] Result:', result.status);
@@ -86,6 +89,7 @@ export default async function handler(request) {
       JSON.stringify({
         success: false,
         error: error.message,
+        hint: 'Check if Firebase environment variables are set correctly',
         status: '❌ TEST FAILED - See server logs for details'
       }, null, 2),
       {

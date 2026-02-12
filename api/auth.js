@@ -108,12 +108,12 @@ async function handleLogin(request, ip) {
     }
     
     // Verify credentials
-    console.log('🔐 [AUTH] Starting credential verification...');
-    const isValid = verifyPassword(email, password);
+    console.log('🔐 [AUTH] Starting credential verification via Firebase...');
+    const isValid = await verifyPassword(email, password);
     console.log('🎯 [AUTH] Verification result:', isValid);
     
     if (!isValid) {
-      console.log('❌ [AUTH] Invalid credentials');
+      console.log('❌ [AUTH] Invalid credentials from Firebase');
       recordLoginAttempt(ip);
       return new Response(
         JSON.stringify({
@@ -126,7 +126,7 @@ async function handleLogin(request, ip) {
     }
     
     // Get user data
-    const user = getUserByEmail(email);
+    const user = await getUserByEmail(email);
     if (!user) {
       return new Response(
         JSON.stringify({ success: false, error: 'User not found' }),
@@ -138,10 +138,11 @@ async function handleLogin(request, ip) {
     clearLoginAttempts(ip);
     
     // Update last login
-    updateLastLogin(email);
+    await updateLastLogin(email);
     
     console.log('✅ [AUTH] Login SUCCESSFUL for:', user.email);
     console.log('🎫 [AUTH] Generating JWT token...');
+    console.log('🔥 [AUTH] All data persisted in Firebase');
     
     // Create JWT token
     const token = createToken({
@@ -231,7 +232,9 @@ async function handleChangePassword(request) {
     
     // Change password
     try {
-      changePassword(payload.email, currentPassword, newPassword);
+      await changePassword(payload.email, currentPassword, newPassword);
+      
+      console.log('✅ [AUTH] Password changed successfully and persisted to Firebase');
       
       return new Response(
         JSON.stringify({
@@ -241,6 +244,7 @@ async function handleChangePassword(request) {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } catch (error) {
+      console.error('❌ [AUTH] Password change failed:', error.message);
       return new Response(
         JSON.stringify({ success: false, error: error.message }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -279,7 +283,7 @@ async function handleVerifySession(request) {
     }
     
     // Get fresh user data
-    const user = getUserByEmail(payload.email);
+    const user = await getUserByEmail(payload.email);
     
     return new Response(
       JSON.stringify({
