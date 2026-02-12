@@ -80,13 +80,13 @@ export default async function handler(request) {
     
   } catch (error) {
     console.error('🧪 [TEST] Error during test:', error);
+    console.error('🧪 [TEST] Stack trace:', error.stack);
     
     return new Response(
       JSON.stringify({
         success: false,
         error: error.message,
-        stack: error.stack,
-        status: '❌ TEST FAILED - See error details'
+        status: '❌ TEST FAILED - See server logs for details'
       }, null, 2),
       {
         status: 500,

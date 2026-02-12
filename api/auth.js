@@ -79,7 +79,6 @@ async function handleLogin(request, ip) {
     const { email, password } = body;
     
     console.log('📧 [AUTH] Email provided:', email);
-    console.log('🔑 [AUTH] Password length:', password ? password.length : 0);
     
     // Validate input
     if (!email || !password) {

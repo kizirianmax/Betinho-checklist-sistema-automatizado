@@ -30,12 +30,11 @@ function initializeOwner() {
   // This ensures the password hash is always the same across serverless cold starts
   // Security note: This is acceptable only for the initial default account.
   // When user changes password, a random salt will be generated (see changePassword function)
-  const fixedSalt = 'betinho2026fixedsaltfordefaultowner1234567890abcdef';
+  const fixedSalt = 'f8e7d6c5b4a39281706f5e4d3c2b1a0918273645f8e7d6c5b4a39281706f5e4d';
   
   const hash = crypto.pbkdf2Sync(defaultPassword, fixedSalt, 10000, 64, 'sha512').toString('hex');
   
   console.log('🔐 [STORAGE] Initializing default OWNER account');
-  console.log('📧 [STORAGE] Email:', 'robertokizirian@gmail.com');
   console.log('🔑 [STORAGE] Using fixed salt for consistent authentication');
   
   return {
