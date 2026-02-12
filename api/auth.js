@@ -70,11 +70,16 @@ function clearLoginAttempts(ip) {
  * Handle login request
  */
 async function handleLogin(request, ip) {
-  console.log('[AUTH] Login attempt from IP:', ip);
+  console.log('🚪 [AUTH] ========== LOGIN ATTEMPT ==========');
+  console.log('🌐 [AUTH] IP Address:', ip);
+  console.log('⏰ [AUTH] Timestamp:', new Date().toISOString());
+  
   try {
     const body = await request.json();
-    console.log('[AUTH] Login request received for:', body.email);
     const { email, password } = body;
+    
+    console.log('📧 [AUTH] Email provided:', email);
+    console.log('🔑 [AUTH] Password length:', password ? password.length : 0);
     
     // Validate input
     if (!email || !password) {
@@ -104,7 +109,9 @@ async function handleLogin(request, ip) {
     }
     
     // Verify credentials
+    console.log('🔐 [AUTH] Starting credential verification...');
     const isValid = verifyPassword(email, password);
+    console.log('🎯 [AUTH] Verification result:', isValid);
     
     if (!isValid) {
       recordLoginAttempt(ip);
@@ -132,6 +139,9 @@ async function handleLogin(request, ip) {
     
     // Update last login
     updateLastLogin(email);
+    
+    console.log('✅ [AUTH] Login SUCCESSFUL for:', user.email);
+    console.log('🎫 [AUTH] Generating JWT token...');
     
     // Create JWT token
     const token = createToken({

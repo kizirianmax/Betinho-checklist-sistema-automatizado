@@ -36,6 +36,33 @@ O sistema agora possui autenticação completa para proteger o acesso.
    - Digite a senha atual
    - Digite e confirme a nova senha (mínimo 8 caracteres)
 
+### 🧪 Testar Credenciais (Debug)
+
+**Antes de tentar fazer login, teste se as credenciais estão funcionando:**
+
+1. **Acesse o endpoint de teste:**
+   ```
+   /test-credentials
+   ```
+
+2. **Verifique a resposta:**
+   - ✅ `verifyPasswordResult: true` → Sistema OK, pode fazer login
+   - ❌ `verifyPasswordResult: false` → Problema detectado, veja os logs
+
+3. **Interpretação dos resultados:**
+   ```json
+   {
+     "status": "✅ CREDENTIALS WORKING - You can login!",
+     "verification": {
+       "verifyPasswordResult": true,  // ← DEVE SER TRUE
+       "hashComputedCorrectly": true  // ← DEVE SER TRUE
+     }
+   }
+   ```
+
+**⚠️ SEGURANÇA:** Delete o arquivo `api/test-credentials.js` após confirmar que o sistema está funcionando!
+
+
 ### 🛡️ Segurança Implementada
 
 - ✅ Hash de senha com PBKDF2 (10.000 iterações)

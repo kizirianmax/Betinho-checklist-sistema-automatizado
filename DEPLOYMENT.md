@@ -122,6 +122,40 @@ vercel link
 - Chrome: Settings > Privacy > Clear browsing data > Cookies
 - Firefox: Options > Privacy > Clear Data > Cookies
 
+## 🐛 Troubleshooting - Login Issues
+
+### Issue: Cannot login with default credentials
+
+**Symptoms:**
+- "Invalid email or password" error
+- Login fails even with correct credentials
+
+**Solution:**
+
+1. **Test credentials first:**
+   ```
+   https://your-project.vercel.app/test-credentials
+   ```
+   
+2. **Check the response:**
+   - If `verifyPasswordResult: false` → System issue
+   - If `verifyPasswordResult: true` → Login should work
+
+3. **Check Vercel Function Logs:**
+   ```
+   Vercel Dashboard → Deployments → Latest → Function Logs
+   ```
+   Look for messages starting with `[AUTH]` and `[STORAGE]`
+
+4. **Force clean deploy:**
+   ```bash
+   # In Vercel dashboard
+   Deployments → ... → Redeploy
+   ```
+
+5. **After successful login, change password immediately!**
+
+
 ## Production Recommendations
 
 ### 1. Enable Vercel KV for Persistent Storage

@@ -21,16 +21,27 @@ let userData = null;
 
 /**
  * Initialize default owner account
+ * Uses a fixed salt to ensure consistent password hashing across cold starts
  */
 function initializeOwner() {
   const defaultPassword = 'Betinho@2026';
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(defaultPassword, salt, 10000, 64, 'sha512').toString('hex');
+  
+  // 🔒 FIXED SALT for default owner account
+  // This ensures the password hash is always the same across serverless cold starts
+  // Security note: This is acceptable only for the initial default account.
+  // When user changes password, a random salt will be generated (see changePassword function)
+  const fixedSalt = 'betinho2026fixedsaltfordefaultowner1234567890abcdef';
+  
+  const hash = crypto.pbkdf2Sync(defaultPassword, fixedSalt, 10000, 64, 'sha512').toString('hex');
+  
+  console.log('🔐 [STORAGE] Initializing default OWNER account');
+  console.log('📧 [STORAGE] Email:', 'robertokizirian@gmail.com');
+  console.log('🔑 [STORAGE] Using fixed salt for consistent authentication');
   
   return {
     email: 'robertokizirian@gmail.com',
     passwordHash: hash,
-    salt: salt,
+    salt: fixedSalt,
     role: 'OWNER',
     createdAt: new Date().toISOString(),
     permissions: ['*'],
@@ -44,7 +55,9 @@ function initializeOwner() {
  */
 export function getUserData() {
   if (!userData) {
+    console.log('🔄 [STORAGE] User data not found - initializing...');
     userData = initializeOwner();
+    console.log('✅ [STORAGE] Owner account initialized successfully');
   }
   return userData;
 }
@@ -53,14 +66,26 @@ export function getUserData() {
  * Verify password against stored hash
  */
 export function verifyPassword(email, password) {
+  console.log('🔍 [STORAGE] Verifying password for email:', email);
+  
   const user = getUserData();
   
   if (user.email !== email) {
+    console.log('❌ [STORAGE] Email mismatch. Expected:', user.email, 'Got:', email);
     return false;
   }
   
+  console.log('🔐 [STORAGE] Computing password hash with stored salt...');
   const hash = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('hex');
-  return hash === user.passwordHash;
+  const isValid = hash === user.passwordHash;
+  
+  if (isValid) {
+    console.log('✅ [STORAGE] Password verification SUCCESSFUL');
+  } else {
+    console.log('❌ [STORAGE] Password verification FAILED - hash mismatch');
+  }
+  
+  return isValid;
 }
 
 /**
