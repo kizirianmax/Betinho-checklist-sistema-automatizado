@@ -1,7 +1,9 @@
 /**
  * Test Credentials Endpoint
  * For debugging authentication issues
- * DELETE THIS FILE IN PRODUCTION!
+ * 
+ * ⚠️ SECURITY: This endpoint is DISABLED in production environments.
+ * Only available when NODE_ENV !== 'production'
  * 
  * Usage: GET /api/test-credentials
  */
@@ -10,6 +12,20 @@ import { getUserData, verifyPassword } from './lib/storage.js';
 import crypto from 'crypto';
 
 export default async function handler(request) {
+  // Disable endpoint in production
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production') {
+    return new Response(
+      JSON.stringify({
+        success: false,
+        error: 'This endpoint is disabled in production for security reasons'
+      }),
+      {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
+  }
+  
   if (request.method !== 'GET') {
     return new Response('Method not allowed', { status: 405 });
   }
@@ -36,7 +52,7 @@ export default async function handler(request) {
           passwordHashMatches: testHash === user.passwordHash,
           verifyPasswordResult: isValid,
           expectedEmail: testEmail,
-          expectedPassword: testPassword
+          expectedPassword: '***' // Don't expose password in response
         },
         message: isValid 
           ? '✅ Credentials are working correctly!' 
@@ -52,7 +68,7 @@ export default async function handler(request) {
       JSON.stringify({
         success: false,
         error: error.message,
-        stack: error.stack
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       }, null, 2),
       {
         status: 500,

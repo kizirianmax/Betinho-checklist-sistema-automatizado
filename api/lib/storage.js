@@ -29,7 +29,9 @@ function initializeOwner() {
   // This ensures the password hash is always the same across cold starts
   // ⚠️ SECURITY NOTE: This is acceptable for the default account only.
   // When the user changes their password, a random salt will be generated.
-  const salt = 'betinho2026fixedsaltfordefaultowner1234567890abcdef'; // 48 chars (hex format)
+  // 
+  // You can override this by setting OWNER_SALT environment variable
+  const salt = process.env.OWNER_SALT || 'betinho2026fixedsaltfordefaultowner1234567890abcdef'; // 48 chars (hex format)
   
   const hash = crypto.pbkdf2Sync(defaultPassword, salt, 10000, 64, 'sha512').toString('hex');
   

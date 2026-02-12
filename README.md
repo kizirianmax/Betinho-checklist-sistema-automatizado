@@ -40,12 +40,12 @@ O sistema agora possui autenticação completa para proteger o acesso.
 
 Para verificar se as credenciais estão funcionando:
 
-1. Acesse: `/test-credentials`
+1. Acesse: `/test-credentials` (disponível apenas em desenvolvimento)
 2. Verifique a resposta:
    - ✅ `verifyPasswordResult: true` → Credenciais OK
    - ❌ `verifyPasswordResult: false` → Problema detectado
 
-**⚠️ IMPORTANTE:** Delete o arquivo `api/test-credentials.js` em produção!
+**⚠️ IMPORTANTE:** Este endpoint é automaticamente desabilitado em produção (NODE_ENV=production).
 
 ### 🛡️ Segurança Implementada
 
@@ -82,6 +82,23 @@ Para verificar se as credenciais estão funcionando:
    # Configure no Vercel:
    vercel env add JWT_SECRET
    ```
+
+**Variáveis de Ambiente Opcionais:**
+
+2. **OWNER_SALT** (Opcional - Aumenta Segurança)
+   ```bash
+   # Gere um salt personalizado:
+   openssl rand -hex 32
+   
+   # Configure no Vercel:
+   vercel env add OWNER_SALT
+   ```
+   - Se não configurado, usa um salt fixo padrão
+   - Recomendado definir para ambientes de produção
+
+3. **NODE_ENV** (Automático no Vercel)
+   - Define se está em produção
+   - Desabilita endpoints de debug quando `production`
 
 **Recomendado para Produção:**
 - Use Vercel KV ou outro storage persistente para dados do usuário
