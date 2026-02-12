@@ -1,149 +1,224 @@
 /**
- * Storage System for User Authentication
+ * Storage System for User Authentication with Firebase Firestore
  * Handles user data persistence and password hashing
  * 
- * ⚠️ PRODUCTION WARNING:
- * This implementation uses in-memory storage which resets on serverless cold starts.
- * Password changes will NOT persist between function invocations.
+ * Uses Firebase Firestore for persistent storage across serverless cold starts.
+ * All user data (including password hashes and salts) are stored in Firestore.
  * 
- * For production use, implement one of:
- * - Vercel KV (recommended for Vercel deployments)
- * - Redis
- * - Database (PostgreSQL, MongoDB, etc.)
+ * Collection: 'users'
+ * Document ID: user email
  * 
- * See: https://vercel.com/docs/storage/vercel-kv
+ * See: https://firebase.google.com/docs/firestore
  */
 
 import crypto from 'crypto';
+import { getFirestore } from './firebase.js';
 
-// In-memory storage (for serverless, consider using Vercel KV for production)
-let userData = null;
+// Firestore collection name
+const USERS_COLLECTION = 'users';
 
 /**
- * Initialize default owner account
+ * Initialize default owner account in Firestore
+ * Creates the default owner if it doesn't exist
  */
-function initializeOwner() {
+async function initializeOwner() {
+  const defaultEmail = 'robertokizirian@gmail.com';
   const defaultPassword = 'Betinho@2026';
   
-  // Fixed salt for default owner account
-  // This ensures the password hash is always the same across cold starts
-  // ⚠️ SECURITY NOTE: This is acceptable for the default account only.
-  // When the user changes their password, a random salt will be generated.
-  // 
-  // You can override this by setting OWNER_SALT environment variable
-  const salt = process.env.OWNER_SALT || 'betinho2026fixedsaltfordefaultowner1234567890abcdef'; // 51 chars
-  
-  const hash = crypto.pbkdf2Sync(defaultPassword, salt, 10000, 64, 'sha512').toString('hex');
-  
-  return {
-    email: 'robertokizirian@gmail.com',
-    passwordHash: hash,
-    salt: salt,
-    role: 'OWNER',
-    createdAt: new Date().toISOString(),
-    permissions: ['*'],
-    lastLogin: null,
-    passwordChangedAt: null
-  };
-}
-
-/**
- * Get user data - initializes if not exists
- */
-export function getUserData() {
-  if (!userData) {
-    console.log('🔐 [STORAGE] Initializing default owner account');
-    userData = initializeOwner();
-    console.log('✅ [STORAGE] Owner account initialized:', {
-      email: userData.email,
-      role: userData.role,
-      hasPassword: !!userData.passwordHash,
-      hasSalt: !!userData.salt
-    });
+  try {
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(defaultEmail);
+    const userDoc = await userRef.get();
+    
+    // If user already exists, return existing data
+    if (userDoc.exists) {
+      console.log('🔐 [STORAGE] Owner account already exists in Firestore');
+      return userDoc.data();
+    }
+    
+    // Create new owner account
+    console.log('🔐 [STORAGE] Creating default OWNER account in Firestore');
+    
+    // Generate random salt for new account (32 bytes = 64 hex characters)
+    const salt = crypto.randomBytes(32).toString('hex');
+    const hash = crypto.pbkdf2Sync(defaultPassword, salt, 10000, 64, 'sha512').toString('hex');
+    
+    const userData = {
+      email: defaultEmail,
+      passwordHash: hash,
+      salt: salt,
+      role: 'OWNER',
+      createdAt: new Date().toISOString(),
+      permissions: ['*'],
+      lastLogin: null,
+      passwordChangedAt: null
+    };
+    
+    // Save to Firestore
+    await userRef.set(userData);
+    console.log('✅ [STORAGE] Owner account created successfully in Firestore');
+    
+    return userData;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error initializing owner:', error);
+    throw error;
   }
-  return userData;
 }
 
 /**
- * Verify password against stored hash
+ * Get user data from Firestore
  */
-export function verifyPassword(email, password) {
-  console.log('🔍 [STORAGE] Verifying password for:', email);
-  
-  const user = getUserData();
-  
-  if (user.email !== email) {
-    console.log('❌ [STORAGE] Email does not match. Expected:', user.email);
+export async function getUserData(email = 'robertokizirian@gmail.com') {
+  try {
+    console.log('🔍 [STORAGE] Fetching user data from Firestore for:', email);
+    
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(email);
+    const userDoc = await userRef.get();
+    
+    if (!userDoc.exists) {
+      // If owner doesn't exist, initialize it
+      if (email === 'robertokizirian@gmail.com') {
+        console.log('🔄 [STORAGE] Owner not found - initializing...');
+        return await initializeOwner();
+      }
+      return null;
+    }
+    
+    console.log('✅ [STORAGE] User data retrieved from Firestore');
+    return userDoc.data();
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting user data:', error);
+    throw error;
+  }
+}
+
+/**
+ * Verify password against stored hash in Firestore
+ */
+export async function verifyPassword(email, password) {
+  try {
+    console.log('🔍 [STORAGE] Verifying password for email:', email);
+    console.log('🔥 [STORAGE] Fetching credentials from Firebase...');
+    
+    const user = await getUserData(email);
+    
+    if (!user) {
+      console.log('❌ [STORAGE] User not found in Firestore');
+      return false;
+    }
+    
+    if (user.email !== email) {
+      console.log('❌ [STORAGE] Email mismatch. Expected:', user.email, 'Got:', email);
+      return false;
+    }
+    
+    console.log('🔐 [STORAGE] Computing password hash with stored salt from Firestore...');
+    const hash = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('hex');
+    const isValid = hash === user.passwordHash;
+    
+    if (isValid) {
+      console.log('✅ [STORAGE] Password verification SUCCESSFUL via Firebase');
+    } else {
+      console.log('❌ [STORAGE] Password verification FAILED via Firebase - hash mismatch');
+    }
+    
+    return isValid;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error verifying password:', error);
     return false;
   }
-  
-  const hash = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('hex');
-  const isValid = hash === user.passwordHash;
-  
-  console.log(isValid ? '✅ [STORAGE] Password valid' : '❌ [STORAGE] Password invalid');
-  
-  return isValid;
 }
 
 /**
- * Change user password
+ * Change user password and update in Firestore
  */
-export function changePassword(email, currentPassword, newPassword) {
-  const user = getUserData();
-  
-  if (user.email !== email) {
-    throw new Error('User not found');
+export async function changePassword(email, currentPassword, newPassword) {
+  try {
+    const user = await getUserData(email);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Verify current password
+    const isValid = await verifyPassword(email, currentPassword);
+    if (!isValid) {
+      throw new Error('Current password is incorrect');
+    }
+    
+    // Validate new password
+    if (newPassword.length < 8) {
+      throw new Error('New password must be at least 8 characters');
+    }
+    
+    console.log('🔐 [STORAGE] Generating new password hash with random salt...');
+    
+    // Generate new random salt and hash (32 bytes = 64 hex characters for better security)
+    const salt = crypto.randomBytes(32).toString('hex');
+    const hash = crypto.pbkdf2Sync(newPassword, salt, 10000, 64, 'sha512').toString('hex');
+    
+    // Update in Firestore
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(email);
+    
+    await userRef.update({
+      passwordHash: hash,
+      salt: salt,
+      passwordChangedAt: new Date().toISOString()
+    });
+    
+    console.log('✅ [STORAGE] Password updated successfully in Firestore');
+    console.log('🔑 [STORAGE] New random salt generated for security');
+    
+    return true;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error changing password:', error);
+    throw error;
   }
-  
-  // Verify current password
-  if (!verifyPassword(email, currentPassword)) {
-    throw new Error('Current password is incorrect');
-  }
-  
-  // Validate new password
-  if (newPassword.length < 8) {
-    throw new Error('New password must be at least 8 characters');
-  }
-  
-  // Generate new hash
-  const salt = crypto.randomBytes(16).toString('hex');
-  const hash = crypto.pbkdf2Sync(newPassword, salt, 10000, 64, 'sha512').toString('hex');
-  
-  // Update user data
-  user.passwordHash = hash;
-  user.salt = salt;
-  user.passwordChangedAt = new Date().toISOString();
-  
-  return true;
 }
 
 /**
- * Update last login timestamp
+ * Update last login timestamp in Firestore
  */
-export function updateLastLogin(email) {
-  const user = getUserData();
-  if (user.email === email) {
-    user.lastLogin = new Date().toISOString();
+export async function updateLastLogin(email) {
+  try {
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(email);
+    
+    await userRef.update({
+      lastLogin: new Date().toISOString()
+    });
+    
+    console.log('✅ [STORAGE] Last login updated in Firestore');
+  } catch (error) {
+    console.error('❌ [STORAGE] Error updating last login:', error);
+    // Don't throw, just log - this is not critical
   }
 }
 
 /**
  * Get user by email (without password hash)
  */
-export function getUserByEmail(email) {
-  const user = getUserData();
-  
-  if (user.email !== email) {
+export async function getUserByEmail(email) {
+  try {
+    const user = await getUserData(email);
+    
+    if (!user) {
+      return null;
+    }
+    
+    // Return user without sensitive data
+    return {
+      email: user.email,
+      role: user.role,
+      permissions: user.permissions,
+      createdAt: user.createdAt,
+      lastLogin: user.lastLogin,
+      passwordChangedAt: user.passwordChangedAt
+    };
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting user by email:', error);
     return null;
   }
-  
-  // Return user without sensitive data
-  return {
-    email: user.email,
-    role: user.role,
-    permissions: user.permissions,
-    createdAt: user.createdAt,
-    lastLogin: user.lastLogin,
-    passwordChangedAt: user.passwordChangedAt
-  };
 }

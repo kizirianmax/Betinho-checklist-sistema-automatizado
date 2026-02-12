@@ -38,14 +38,30 @@ O sistema agora possui autenticação completa para proteger o acesso.
 
 ### 🧪 Testar Credenciais (Debug)
 
-Para verificar se as credenciais estão funcionando:
+**Antes de tentar fazer login, teste se as credenciais estão funcionando:**
 
-1. Acesse: `/test-credentials` (disponível apenas em desenvolvimento)
-2. Verifique a resposta:
-   - ✅ `verifyPasswordResult: true` → Credenciais OK
-   - ❌ `verifyPasswordResult: false` → Problema detectado
+1. **Acesse o endpoint de teste:**
+   ```
+   /test-credentials
+   ```
 
-**⚠️ IMPORTANTE:** Este endpoint é automaticamente desabilitado em produção (NODE_ENV=production).
+2. **Verifique a resposta:**
+   - ✅ `verifyPasswordResult: true` → Sistema OK, pode fazer login
+   - ❌ `verifyPasswordResult: false` → Problema detectado, veja os logs
+
+3. **Interpretação dos resultados:**
+   ```json
+   {
+     "status": "✅ CREDENTIALS WORKING - You can login!",
+     "verification": {
+       "verifyPasswordResult": true,  // ← DEVE SER TRUE
+       "hashComputedCorrectly": true  // ← DEVE SER TRUE
+     }
+   }
+   ```
+
+**⚠️ SEGURANÇA:** Delete o arquivo `api/test-credentials.js` após confirmar que o sistema está funcionando!
+
 
 ### 🛡️ Segurança Implementada
 
@@ -56,6 +72,17 @@ Para verificar se as credenciais estão funcionando:
 - ✅ Validação de inputs
 - ✅ Proteção CORS configurada
 - ✅ Tokens com expiração de 24 horas
+- ✅ **Persistência com Firebase Firestore** - Dados persistem após cold starts
+
+### 🔥 Armazenamento Persistente com Firebase
+
+O sistema agora usa **Firebase Firestore** para armazenar dados de autenticação:
+
+- ✅ **Sem perda de dados** em cold starts do Vercel
+- ✅ **Senhas alteradas persistem** automaticamente
+- ✅ **Salt aleatório** gerado para cada senha
+- ✅ **OWNER padrão** criado automaticamente na primeira execução
+- ✅ Todos os dados salvos na coleção `users` do Firestore
 
 ### 🔌 Endpoints da API
 
@@ -83,29 +110,40 @@ Para verificar se as credenciais estão funcionando:
    vercel env add JWT_SECRET
    ```
 
-**Variáveis de Ambiente Opcionais:**
-
-2. **OWNER_SALT** (Opcional - Aumenta Segurança)
+2. **FIREBASE_PROJECT_ID** (OBRIGATÓRIO)
    ```bash
-   # Gere um salt personalizado:
-   openssl rand -hex 32
-   
-   # Configure no Vercel:
-   vercel env add OWNER_SALT
+   # Obtenha do Firebase Console > Project Settings
+   vercel env add FIREBASE_PROJECT_ID
    ```
-   - Se não configurado, usa um salt fixo padrão
-   - Recomendado definir para ambientes de produção
 
-3. **NODE_ENV** (Automático no Vercel)
-   - Define se está em produção
-   - Desabilita endpoints de debug quando `production`
+3. **FIREBASE_PRIVATE_KEY** (OBRIGATÓRIO)
+   ```bash
+   # Obtenha do Firebase Console > Service Accounts > Generate new private key
+   # Copie o valor de "private_key" do arquivo JSON
+   vercel env add FIREBASE_PRIVATE_KEY
+   ```
+
+4. **FIREBASE_CLIENT_EMAIL** (OBRIGATÓRIO)
+   ```bash
+   # Obtenha do Firebase Console > Service Accounts
+   # Copie o valor de "client_email" do arquivo JSON
+   vercel env add FIREBASE_CLIENT_EMAIL
+   ```
+
+**Como configurar Firebase:**
+
+1. Acesse o [Firebase Console](https://console.firebase.google.com/)
+2. Crie um novo projeto ou use um existente
+3. Vá para **Project Settings** > **Service Accounts**
+4. Clique em **Generate new private key**
+5. Extraia os valores do JSON e adicione às variáveis de ambiente no Vercel
 
 **Recomendado para Produção:**
-- Use Vercel KV ou outro storage persistente para dados do usuário
-- Configure variáveis de ambiente no dashboard do Vercel
+- Configure todas as variáveis de ambiente no dashboard do Vercel
 - Veja `.env.example` para referência completa
+- Use Firebase Firestore Rules para proteger os dados
 
-⚠️ **AVISO**: O sistema atual usa armazenamento em memória. Alterações de senha não persistem entre reinicializações (cold starts). Para produção, implemente Vercel KV ou similar.
+⚠️ **IMPORTANTE**: Com Firebase, as alterações de senha **persistem automaticamente** entre cold starts!
 
 ---
 

@@ -70,13 +70,15 @@ function clearLoginAttempts(ip) {
  * Handle login request
  */
 async function handleLogin(request, ip) {
-  console.log('🔑 [AUTH] Login attempt from IP:', ip);
+  console.log('🚪 [AUTH] ========== LOGIN ATTEMPT ==========');
+  console.log('🌐 [AUTH] IP Address:', ip);
+  console.log('⏰ [AUTH] Timestamp:', new Date().toISOString());
   
   try {
     const body = await request.json();
     const { email, password } = body;
     
-    console.log('📧 [AUTH] Login request for email:', email);
+    console.log('📧 [AUTH] Email provided:', email);
     
     // Validate input
     if (!email || !password) {
@@ -106,11 +108,12 @@ async function handleLogin(request, ip) {
     }
     
     // Verify credentials
-    console.log('🔐 [AUTH] Verifying credentials...');
-    const isValid = verifyPassword(email, password);
+    console.log('🔐 [AUTH] Starting credential verification via Firebase...');
+    const isValid = await verifyPassword(email, password);
+    console.log('🎯 [AUTH] Verification result:', isValid);
     
     if (!isValid) {
-      console.log('❌ [AUTH] Invalid credentials');
+      console.log('❌ [AUTH] Invalid credentials from Firebase');
       recordLoginAttempt(ip);
       return new Response(
         JSON.stringify({
@@ -123,7 +126,7 @@ async function handleLogin(request, ip) {
     }
     
     // Get user data
-    const user = getUserByEmail(email);
+    const user = await getUserByEmail(email);
     if (!user) {
       return new Response(
         JSON.stringify({ success: false, error: 'User not found' }),
@@ -135,10 +138,11 @@ async function handleLogin(request, ip) {
     clearLoginAttempts(ip);
     
     // Update last login
-    updateLastLogin(email);
+    await updateLastLogin(email);
     
-    console.log('✅ [AUTH] Login successful for:', email);
-    console.log('🎫 [AUTH] Creating JWT token...');
+    console.log('✅ [AUTH] Login SUCCESSFUL for:', user.email);
+    console.log('🎫 [AUTH] Generating JWT token...');
+    console.log('🔥 [AUTH] All data persisted in Firebase');
     
     // Create JWT token
     const token = createToken({
@@ -228,7 +232,9 @@ async function handleChangePassword(request) {
     
     // Change password
     try {
-      changePassword(payload.email, currentPassword, newPassword);
+      await changePassword(payload.email, currentPassword, newPassword);
+      
+      console.log('✅ [AUTH] Password changed successfully and persisted to Firebase');
       
       return new Response(
         JSON.stringify({
@@ -238,6 +244,7 @@ async function handleChangePassword(request) {
         { status: 200, headers: { 'Content-Type': 'application/json' } }
       );
     } catch (error) {
+      console.error('❌ [AUTH] Password change failed:', error.message);
       return new Response(
         JSON.stringify({ success: false, error: error.message }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
@@ -276,7 +283,7 @@ async function handleVerifySession(request) {
     }
     
     // Get fresh user data
-    const user = getUserByEmail(payload.email);
+    const user = await getUserByEmail(payload.email);
     
     return new Response(
       JSON.stringify({
@@ -322,7 +329,6 @@ export default async function handler(request) {
   }
   
   // Get action from query parameter
-  const url = new URL(request.url);
   const action = url.searchParams.get('action');
   
   // Get client IP for rate limiting

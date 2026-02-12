@@ -55,6 +55,10 @@
     {
       "source": "/test-credentials",
       "destination": "/api/test-credentials.js"
+    },
+    {
+      "source": "/api/test-credentials",
+      "destination": "/api/test-credentials.js"
     }
   ]
 }
