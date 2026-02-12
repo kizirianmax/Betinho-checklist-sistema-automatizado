@@ -47,10 +47,6 @@
     {
       "source": "/admin",
       "destination": "/public/admin-dashboard.html"
-    },
-    {
-      "source": "/api/auth",
-      "destination": "/public/api/auth.js"
     }
   ]
 }

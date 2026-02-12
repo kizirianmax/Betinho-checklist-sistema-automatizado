@@ -9,8 +9,8 @@
  * - GET /api/auth?action=verify-session
  */
 
-import { verifyPassword, changePassword, updateLastLogin, getUserByEmail } from './storage.js';
-import { createToken, verifyToken, extractToken } from './middleware/auth-middleware.js';
+import { verifyPassword, changePassword, updateLastLogin, getUserByEmail } from './lib/storage.js';
+import { createToken, verifyToken, extractToken } from './lib/auth-middleware.js';
 
 // Rate limiting storage (in-memory, consider Redis for production)
 const loginAttempts = new Map();

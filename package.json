@@ -1,0 +1,21 @@
+{
+  "name": "betinho-checklist-sistema-automatizado",
+  "version": "1.0.0",
+  "description": "Betinho - Sistema de Automação Híbrido com autenticação",
+  "type": "module",
+  "engines": {
+    "node": ">=18.x"
+  },
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel --prod"
+  },
+  "keywords": [
+    "automation",
+    "ai",
+    "authentication",
+    "vercel"
+  ],
+  "author": "Roberto Kizirian",
+  "license": "MIT"
+}
