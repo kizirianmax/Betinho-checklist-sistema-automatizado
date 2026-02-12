@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Usuários - Betinho</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header h1 i {
+            margin-right: 10px;
+        }
+
+        .header-actions button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .header-actions button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .search-bar {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-input-wrapper {
+            position: relative;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-size: 16px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .users-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .user-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            cursor: pointer;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 32px;
+            font-weight: 600;
+            border: 4px solid #f5f5f5;
+            overflow: hidden;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .user-username {
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 12px;
+        }
+
+        .user-bio {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            max-height: 60px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+        }
+
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .user-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .user-stat-value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .user-stat-label {
+            font-size: 12px;
+            color: #999;
+            margin-top: 2px;
+        }
+
+        .skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s ease-in-out infinite;
+            border-radius: 10px;
+        }
+
+        @keyframes loading {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        .skeleton-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .skeleton-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+        }
+
+        .skeleton-text {
+            height: 16px;
+            margin: 10px auto;
+        }
+
+        .skeleton-text.short {
+            width: 60%;
+        }
+
+        .skeleton-text.long {
+            width: 80%;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #666;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: slideInRight 0.3s ease-out;
+            z-index: 1000;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.error {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .toast.success {
+            border-left: 4px solid #27ae60;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .users-grid {
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 15px;
+            }
+
+            .container {
+                margin: 20px auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .users-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast" id="toast"></div>
+
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-users"></i>Usuários</h1>
+            <div class="header-actions">
+                <button onclick="window.location.href='/'">
+                    <i class="fas fa-home"></i> Início
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-bar">
+            <div class="search-input-wrapper">
+                <i class="fas fa-search"></i>
+                <input 
+                    type="text" 
+                    class="search-input" 
+                    id="searchInput" 
+                    placeholder="Buscar usuários por nome..."
+                    autocomplete="off"
+                >
+            </div>
+        </div>
+
+        <div class="users-grid" id="usersGrid">
+            <!-- Loading skeletons -->
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text short"></div>
+                <div class="skeleton skeleton-text long"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text short"></div>
+                <div class="skeleton skeleton-text long"></div>
+            </div>
+            <div class="skeleton-card">
+                <div class="skeleton skeleton-avatar"></div>
+                <div class="skeleton skeleton-text short"></div>
+                <div class="skeleton skeleton-text long"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allUsers = [];
+        let currentUser = null;
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(' ');
+            if (parts.length === 1) return parts[0][0].toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        // Create user card HTML
+        function createUserCard(user) {
+            const isCurrentUser = currentUser && user.email === currentUser.email;
+            const avatarContent = user.photoURL 
+                ? `<img src="${user.photoURL}" alt="${user.displayName}">`
+                : getInitials(user.displayName);
+
+            return `
+                <div class="user-card" onclick="window.location.href='/profile/${user.email}'">
+                    <div class="user-avatar">${avatarContent}</div>
+                    <div class="user-name">${user.displayName || 'Sem nome'}${isCurrentUser ? ' (Você)' : ''}</div>
+                    <div class="user-username">@${user.username || 'usuario'}</div>
+                    ${user.bio ? `<div class="user-bio">${user.bio}</div>` : ''}
+                    <div class="user-stats">
+                        <div class="user-stat">
+                            <span class="user-stat-value">${user.followersCount || 0}</span>
+                            <span class="user-stat-label">Seguidores</span>
+                        </div>
+                        <div class="user-stat">
+                            <span class="user-stat-value">${user.followingCount || 0}</span>
+                            <span class="user-stat-label">Seguindo</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Display users
+        function displayUsers(users) {
+            const grid = document.getElementById('usersGrid');
+
+            if (users.length === 0) {
+                grid.innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="fas fa-user-slash"></i>
+                        <h3>Nenhum usuário encontrado</h3>
+                        <p>Tente ajustar sua busca</p>
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = users.map(user => createUserCard(user)).join('');
+        }
+
+        // Filter users
+        function filterUsers(searchTerm) {
+            const term = searchTerm.toLowerCase().trim();
+            
+            if (!term) {
+                displayUsers(allUsers);
+                return;
+            }
+
+            const filtered = allUsers.filter(user => {
+                const name = (user.displayName || '').toLowerCase();
+                const username = (user.username || '').toLowerCase();
+                return name.includes(term) || username.includes(term);
+            });
+
+            displayUsers(filtered);
+        }
+
+        // Load users with follow counts
+        async function loadUsers() {
+            try {
+                // Verify session
+                const sessionRes = await fetch('/api/auth?action=verify-session');
+                const sessionData = await sessionRes.json();
+
+                if (!sessionData.authenticated) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                currentUser = sessionData.user;
+
+                // Load all users
+                const response = await fetch('/api/users?action=list');
+                const data = await response.json();
+
+                if (data.success) {
+                    allUsers = data.users;
+
+                    // Load follow counts for each user
+                    const usersWithCounts = await Promise.all(
+                        allUsers.map(async (user) => {
+                            try {
+                                const [followersRes, followingRes] = await Promise.all([
+                                    fetch(`/api/follow?action=followers&targetEmail=${encodeURIComponent(user.email)}`),
+                                    fetch(`/api/follow?action=following&targetEmail=${encodeURIComponent(user.email)}`)
+                                ]);
+
+                                const followersData = await followersRes.json();
+                                const followingData = await followingRes.json();
+
+                                return {
+                                    ...user,
+                                    followersCount: followersData.success ? followersData.followers.length : 0,
+                                    followingCount: followingData.success ? followingData.following.length : 0
+                                };
+                            } catch (error) {
+                                console.error(`Error loading counts for user ${user.email}:`, error);
+                                return { ...user, followersCount: 0, followingCount: 0 };
+                            }
+                        })
+                    );
+
+                    allUsers = usersWithCounts;
+                    displayUsers(allUsers);
+                } else {
+                    showToast('Erro ao carregar usuários', 'error');
+                    document.getElementById('usersGrid').innerHTML = `
+                        <div class="empty-state" style="grid-column: 1/-1;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <h3>Erro ao carregar usuários</h3>
+                            <p>Tente novamente mais tarde</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                showToast('Erro ao conectar com o servidor', 'error');
+                document.getElementById('usersGrid').innerHTML = `
+                    <div class="empty-state" style="grid-column: 1/-1;">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <h3>Erro ao conectar</h3>
+                        <p>Verifique sua conexão e tente novamente</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Search input handler with debounce
+        let searchTimeout;
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                filterUsers(e.target.value);
+            }, 300);
+        });
+
+        // Load users on page load
+        loadUsers();
+    </script>
+</body>
+</html>

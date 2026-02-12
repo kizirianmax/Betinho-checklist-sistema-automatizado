@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo - Betinho</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .onboarding-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            width: 100%;
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: #e0e0e0;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.4s ease;
+        }
+
+        .onboarding-content {
+            padding: 40px;
+        }
+
+        .step {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .step.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .step-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .step-number {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin: 0 auto 15px;
+        }
+
+        .step-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .step-icon i {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .step-title {
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .step-description {
+            font-size: 15px;
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            padding-top: 14px;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .photo-upload {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .photo-preview {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: 600;
+            overflow: hidden;
+            border: 4px solid #f5f5f5;
+        }
+
+        .photo-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .photo-upload-btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 10px;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .photo-upload-btn:hover {
+            background: #e0e0e0;
+            border-color: #667eea;
+        }
+
+        .photo-upload-btn i {
+            margin-right: 8px;
+        }
+
+        #photoInput {
+            display: none;
+        }
+
+        .users-list {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 2px solid #f0f0f0;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .user-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .user-item.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+            margin-bottom: 2px;
+        }
+
+        .user-username {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .user-follow-btn {
+            padding: 8px 20px;
+            border-radius: 8px;
+            border: none;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-follow-btn.follow {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .user-follow-btn.following {
+            background: #27ae60;
+            color: white;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 14px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #666;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-skip {
+            background: transparent;
+            color: #999;
+            text-decoration: underline;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            text-align: center;
+            display: block;
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .btn-skip:hover {
+            color: #667eea;
+        }
+
+        .completion-icon {
+            font-size: 80px;
+            color: #27ae60;
+            margin-bottom: 20px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+        }
+
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: slideInRight 0.3s ease-out;
+            z-index: 1000;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.error {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .toast.success {
+            border-left: 4px solid #27ae60;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .onboarding-content {
+                padding: 30px 20px;
+            }
+
+            .step-title {
+                font-size: 24px;
+            }
+
+            .step-icon {
+                font-size: 48px;
+            }
+
+            .actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast" id="toast"></div>
+
+    <div class="onboarding-container">
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 25%"></div>
+        </div>
+
+        <div class="onboarding-content">
+            <!-- Step 1: Welcome -->
+            <div class="step active" id="step1">
+                <div class="step-header">
+                    <div class="step-icon">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h2 class="step-title">Bem-vindo ao Betinho!</h2>
+                    <p class="step-description">
+                        Estamos felizes em ter você aqui! Vamos configurar seu perfil
+                        em alguns passos simples para você começar a se conectar com outras pessoas.
+                    </p>
+                </div>
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="nextStep()">
+                        Começar <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Complete Profile -->
+            <div class="step" id="step2">
+                <div class="step-header">
+                    <div class="step-number">1</div>
+                    <h2 class="step-title">Complete seu Perfil</h2>
+                    <p class="step-description">
+                        Adicione informações sobre você para que outros possam conhecê-lo melhor.
+                    </p>
+                </div>
+
+                <div class="photo-upload">
+                    <div class="photo-preview" id="photoPreview"></div>
+                    <label for="photoInput" class="photo-upload-btn">
+                        <i class="fas fa-camera"></i>
+                        Adicionar Foto
+                    </label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="displayName">Nome Completo</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="displayName" placeholder="Seu nome completo">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bio">Bio (opcional)</label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-pen"></i>
+                        <textarea id="bio" placeholder="Conte um pouco sobre você..."></textarea>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="previousStep()">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </button>
+                    <button class="btn btn-primary" onclick="saveProfile()">
+                        Continuar <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <button class="btn-skip" onclick="nextStep()">Pular este passo</button>
+            </div>
+
+            <!-- Step 3: Find Users to Follow -->
+            <div class="step" id="step3">
+                <div class="step-header">
+                    <div class="step-number">2</div>
+                    <h2 class="step-title">Encontre Pessoas</h2>
+                    <p class="step-description">
+                        Conecte-se com outras pessoas para começar a ver conteúdo interessante.
+                    </p>
+                </div>
+
+                <div id="usersListContainer">
+                    <div class="loading">
+                        <i class="fas fa-spinner"></i>
+                        <p>Carregando usuários...</p>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-secondary" onclick="previousStep()">
+                        <i class="fas fa-arrow-left"></i> Voltar
+                    </button>
+                    <button class="btn btn-primary" onclick="nextStep()">
+                        Continuar <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+                <button class="btn-skip" onclick="nextStep()">Pular este passo</button>
+            </div>
+
+            <!-- Step 4: Complete -->
+            <div class="step" id="step4">
+                <div class="step-header">
+                    <div class="completion-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2 class="step-title">Tudo Pronto!</h2>
+                    <p class="step-description">
+                        Seu perfil está configurado e você está pronto para começar a usar o Betinho.
+                        Aproveite a experiência!
+                    </p>
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" onclick="completeOnboarding()">
+                        Ir para o Início <i class="fas fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentStep = 1;
+        let currentUser = null;
+        let uploadedPhoto = null;
+        let allUsers = [];
+        let followedUsers = new Set();
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(' ');
+            if (parts.length === 1) return parts[0][0].toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        // Update progress bar
+        function updateProgress() {
+            const progress = (currentStep / 4) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        // Next step
+        function nextStep() {
+            if (currentStep < 4) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep++;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+
+                // Load users when reaching step 3
+                if (currentStep === 3) {
+                    loadUsers();
+                }
+            }
+        }
+
+        // Previous step
+        function previousStep() {
+            if (currentStep > 1) {
+                document.getElementById(`step${currentStep}`).classList.remove('active');
+                currentStep--;
+                document.getElementById(`step${currentStep}`).classList.add('active');
+                updateProgress();
+            }
+        }
+
+        // Preview photo
+        document.getElementById('photoInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo: 5MB', 'error');
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showToast('Por favor, selecione uma imagem', 'error');
+                return;
+            }
+
+            uploadedPhoto = file;
+
+            // Preview image
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const preview = document.getElementById('photoPreview');
+                preview.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // Save profile
+        async function saveProfile() {
+            const displayName = document.getElementById('displayName').value.trim();
+            const bio = document.getElementById('bio').value.trim();
+
+            // Update profile info
+            if (displayName || bio) {
+                try {
+                    const updates = {};
+                    if (displayName) updates.displayName = displayName;
+                    if (bio) updates.bio = bio;
+
+                    const response = await fetch('/api/users?action=update', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(updates)
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        showToast(data.error || 'Erro ao atualizar perfil', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error updating profile:', error);
+                    showToast('Erro ao atualizar perfil', 'error');
+                    return;
+                }
+            }
+
+            // Upload photo if selected
+            if (uploadedPhoto) {
+                try {
+                    const formData = new FormData();
+                    formData.append('photo', uploadedPhoto);
+
+                    const response = await fetch('/api/upload-photo', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+
+                    if (!data.success) {
+                        showToast(data.error || 'Erro ao enviar foto', 'error');
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error uploading photo:', error);
+                    showToast('Erro ao enviar foto', 'error');
+                    return;
+                }
+            }
+
+            showToast('Perfil atualizado!', 'success');
+            nextStep();
+        }
+
+        // Load users to follow
+        async function loadUsers() {
+            try {
+                const response = await fetch('/api/users?action=list');
+                const data = await response.json();
+
+                if (data.success) {
+                    // Filter out current user and limit to 10 users
+                    allUsers = data.users
+                        .filter(u => u.email !== currentUser.email)
+                        .slice(0, 10);
+
+                    displayUsers();
+                } else {
+                    document.getElementById('usersListContainer').innerHTML = `
+                        <div style="text-align: center; padding: 20px; color: #999;">
+                            <i class="fas fa-exclamation-circle" style="font-size: 32px; margin-bottom: 10px;"></i>
+                            <p>Erro ao carregar usuários</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                document.getElementById('usersListContainer').innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #999;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 32px; margin-bottom: 10px;"></i>
+                        <p>Erro ao conectar com o servidor</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Display users
+        function displayUsers() {
+            const container = document.getElementById('usersListContainer');
+
+            if (allUsers.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #999;">
+                        <i class="fas fa-users" style="font-size: 32px; margin-bottom: 10px;"></i>
+                        <p>Nenhum usuário disponível</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = `
+                <div class="users-list">
+                    ${allUsers.map(user => {
+                        const avatarContent = user.photoURL
+                            ? `<img src="${user.photoURL}" alt="${user.displayName}">`
+                            : getInitials(user.displayName);
+                        const isFollowing = followedUsers.has(user.email);
+
+                        return `
+                            <div class="user-item" data-user-id="${user.email}">
+                                <div class="user-avatar">${avatarContent}</div>
+                                <div class="user-info">
+                                    <div class="user-name">${user.displayName || 'Sem nome'}</div>
+                                    <div class="user-username">@${user.username || 'usuario'}</div>
+                                </div>
+                                <button class="user-follow-btn ${isFollowing ? 'following' : 'follow'}" 
+                                        onclick="toggleFollow('${user.email}', this)">
+                                    ${isFollowing ? '<i class="fas fa-check"></i> Seguindo' : '<i class="fas fa-plus"></i> Seguir'}
+                                </button>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
+        // Toggle follow
+        async function toggleFollow(userEmail, button) {
+            const isFollowing = followedUsers.has(userEmail);
+
+            try {
+                const action = isFollowing ? 'unfollow' : 'follow';
+                const response = await fetch(`/api/follow?action=${action}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetEmail: userEmail })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    if (isFollowing) {
+                        followedUsers.delete(userEmail);
+                        button.className = 'user-follow-btn follow';
+                        button.innerHTML = '<i class="fas fa-plus"></i> Seguir';
+                    } else {
+                        followedUsers.add(userEmail);
+                        button.className = 'user-follow-btn following';
+                        button.innerHTML = '<i class="fas fa-check"></i> Seguindo';
+                    }
+                } else {
+                    showToast(data.error || 'Erro ao seguir usuário', 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling follow:', error);
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        // Complete onboarding
+        async function completeOnboarding() {
+            // Mark onboarding as complete (could be stored in user preferences)
+            try {
+                await fetch('/api/users?action=update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ onboardingCompleted: true })
+                });
+            } catch (error) {
+                console.error('Error marking onboarding complete:', error);
+            }
+
+            // Redirect to main page
+            window.location.href = '/';
+        }
+
+        // Initialize
+        async function init() {
+            try {
+                // Verify session
+                const response = await fetch('/api/auth?action=verify-session');
+                const data = await response.json();
+
+                if (!data.authenticated) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                currentUser = data.user;
+
+                // Pre-fill name if available
+                if (currentUser.displayName) {
+                    document.getElementById('displayName').value = currentUser.displayName;
+                }
+
+                // Show initials in photo preview
+                const preview = document.getElementById('photoPreview');
+                if (currentUser.photoURL) {
+                    preview.innerHTML = `<img src="${currentUser.photoURL}" alt="${currentUser.displayName}">`;
+                } else {
+                    preview.textContent = getInitials(currentUser.displayName || 'User');
+                }
+            } catch (error) {
+                console.error('Error initializing:', error);
+                showToast('Erro ao carregar dados', 'error');
+            }
+        }
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>
