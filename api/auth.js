@@ -12,7 +12,9 @@
 import { verifyPassword, changePassword, updateLastLogin, getUserByEmail } from './lib/storage.js';
 import { createToken, verifyToken, extractToken } from './lib/auth-middleware.js';
 
-// Rate limiting storage (in-memory, consider Redis for production)
+// Rate limiting storage
+// ⚠️ PRODUCTION WARNING: In-memory storage resets on cold starts.
+// For production, use Vercel KV, Redis, or similar persistent storage.
 const loginAttempts = new Map();
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_TIME = 15 * 60 * 1000; // 15 minutes
@@ -292,9 +294,8 @@ async function handleVerifySession(request) {
  * Main handler for Vercel serverless function
  */
 export default async function handler(request) {
-  // Set CORS headers
+  // Set CORS headers - restrict to same origin in production
   const headers = {
-    'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
   };

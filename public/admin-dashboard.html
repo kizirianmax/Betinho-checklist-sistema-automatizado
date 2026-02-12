@@ -550,7 +550,12 @@
         // Refresh data
         async function refreshData() {
             await verifySession();
-            showAlert('Dados atualizados com sucesso!', 'success');
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #27ae60; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 9999;';
+            successMsg.textContent = 'Dados atualizados com sucesso!';
+            document.body.appendChild(successMsg);
+            setTimeout(() => successMsg.remove(), 3000);
         }
 
         // Logout

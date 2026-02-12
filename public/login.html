@@ -385,11 +385,6 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    // Store token in localStorage as backup
-                    if (data.token) {
-                        localStorage.setItem('auth_token', data.token);
-                    }
-
                     showAlert('Login realizado com sucesso! Redirecionando...', 'success');
                     
                     // Redirect to admin dashboard

@@ -5,8 +5,12 @@
 
 import crypto from 'crypto';
 
-// Secret for JWT signing (in production, use environment variable)
-const JWT_SECRET = process.env.JWT_SECRET || 'betinho-secret-2026-change-in-production';
+// Secret for JWT signing - MUST be set in production via environment variable
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+  throw new Error('JWT_SECRET environment variable must be set for security');
+}
 const TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 
 /**

@@ -59,6 +59,26 @@ O sistema agora possui autenticação completa para proteger o acesso.
 - `/login` - Página de login
 - `/admin` - Dashboard administrativo (OWNER apenas)
 
+### ⚙️ Configuração do Deploy (Vercel)
+
+**Variáveis de Ambiente Obrigatórias:**
+
+1. **JWT_SECRET** (OBRIGATÓRIO)
+   ```bash
+   # Gere uma chave secreta forte:
+   openssl rand -base64 32
+   
+   # Configure no Vercel:
+   vercel env add JWT_SECRET
+   ```
+
+**Recomendado para Produção:**
+- Use Vercel KV ou outro storage persistente para dados do usuário
+- Configure variáveis de ambiente no dashboard do Vercel
+- Veja `.env.example` para referência completa
+
+⚠️ **AVISO**: O sistema atual usa armazenamento em memória. Alterações de senha não persistem entre reinicializações (cold starts). Para produção, implemente Vercel KV ou similar.
+
 ---
 
 ## 🚀 FASE 1: Performance & Anti-Timeout (CRÍTICO)

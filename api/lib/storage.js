@@ -1,7 +1,17 @@
 /**
  * Storage System for User Authentication
  * Handles user data persistence and password hashing
- * For Vercel serverless deployment - uses in-memory storage with file fallback
+ * 
+ * ⚠️ PRODUCTION WARNING:
+ * This implementation uses in-memory storage which resets on serverless cold starts.
+ * Password changes will NOT persist between function invocations.
+ * 
+ * For production use, implement one of:
+ * - Vercel KV (recommended for Vercel deployments)
+ * - Redis
+ * - Database (PostgreSQL, MongoDB, etc.)
+ * 
+ * See: https://vercel.com/docs/storage/vercel-kv
  */
 
 import crypto from 'crypto';
