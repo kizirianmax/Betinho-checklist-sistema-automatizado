@@ -70,8 +70,10 @@ function clearLoginAttempts(ip) {
  * Handle login request
  */
 async function handleLogin(request, ip) {
+  console.log('[AUTH] Login attempt from IP:', ip);
   try {
     const body = await request.json();
+    console.log('[AUTH] Login request received for:', body.email);
     const { email, password } = body;
     
     // Validate input
@@ -138,6 +140,7 @@ async function handleLogin(request, ip) {
       permissions: user.permissions
     });
     
+    console.log('[AUTH] Login successful for:', user.email);
     // Set cookie and return response
     return new Response(
       JSON.stringify({
@@ -158,7 +161,8 @@ async function handleLogin(request, ip) {
       }
     );
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('[AUTH] Login error:', error);
+    console.error('[AUTH] Error stack:', error.stack);
     return new Response(
       JSON.stringify({ success: false, error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json' } }
@@ -294,10 +298,16 @@ async function handleVerifySession(request) {
  * Main handler for Vercel serverless function
  */
 export default async function handler(request) {
-  // Set CORS headers - restrict to same origin in production
+  // Set CORS headers with origin validation
+  const requestOrigin = request.headers.get('origin');
+  const url = new URL(request.url);
+  const isSameOrigin = requestOrigin && new URL(requestOrigin).origin === url.origin;
+  
   const headers = {
+    'Access-Control-Allow-Origin': isSameOrigin ? requestOrigin : url.origin,
     'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Access-Control-Allow-Credentials': 'true',
   };
   
   // Handle preflight

@@ -5,11 +5,16 @@
 
 import crypto from 'crypto';
 
-// Secret for JWT signing - MUST be set in production via environment variable
-const JWT_SECRET = process.env.JWT_SECRET;
+// Auto-generate JWT_SECRET if not set (for development/testing)
+// ⚠️ PRODUCTION: Set JWT_SECRET in Vercel Environment Variables for consistency
+let JWT_SECRET = process.env.JWT_SECRET;
 
 if (!JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable must be set for security');
+  console.warn('⚠️ JWT_SECRET not set. Auto-generating random secret.');
+  console.warn('⚠️ WARNING: Auto-generated secret changes on each cold start, invalidating all existing tokens.');
+  console.warn('⚠️ Set JWT_SECRET environment variable in production for token persistence.');
+  // Generate a cryptographically secure random secret (64 hex characters = 32 bytes)
+  JWT_SECRET = crypto.randomBytes(32).toString('hex');
 }
 const TOKEN_EXPIRY = 24 * 60 * 60 * 1000; // 24 hours
 

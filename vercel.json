@@ -47,6 +47,10 @@
     {
       "source": "/admin",
       "destination": "/public/admin-dashboard.html"
+    },
+    {
+      "source": "/debug",
+      "destination": "/public/debug.html"
     }
   ]
 }
