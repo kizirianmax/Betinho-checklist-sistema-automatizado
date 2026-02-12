@@ -48,6 +48,14 @@ async function initializeOwner() {
       passwordHash: hash,
       salt: salt,
       role: 'OWNER',
+      displayName: 'Roberto Kizirian Max',
+      username: 'robertomax',
+      photoURL: null,
+      bio: '',
+      followers: 0,
+      following: 0,
+      verified: true,
+      active: true,
       createdAt: new Date().toISOString(),
       permissions: ['*'],
       lastLogin: null,
@@ -212,6 +220,14 @@ export async function getUserByEmail(email) {
     return {
       email: user.email,
       role: user.role,
+      displayName: user.displayName,
+      username: user.username,
+      photoURL: user.photoURL,
+      bio: user.bio,
+      followers: user.followers,
+      following: user.following,
+      verified: user.verified,
+      active: user.active,
       permissions: user.permissions,
       createdAt: user.createdAt,
       lastLogin: user.lastLogin,
@@ -220,5 +236,174 @@ export async function getUserByEmail(email) {
   } catch (error) {
     console.error('❌ [STORAGE] Error getting user by email:', error);
     return null;
+  }
+}
+
+/**
+ * Create a new user
+ */
+export async function createUser(userData) {
+  try {
+    const { email, password, displayName, username } = userData;
+    
+    // Validate required fields
+    if (!email || !password || !displayName || !username) {
+      throw new Error('Missing required fields');
+    }
+    
+    // Check if email already exists
+    const existingUser = await getUserData(email);
+    if (existingUser) {
+      throw new Error('Email already registered');
+    }
+    
+    // Check if username already exists
+    const usernameExists = await isUsernameTaken(username);
+    if (usernameExists) {
+      throw new Error('Username already taken');
+    }
+    
+    // Generate salt and hash password
+    const salt = crypto.randomBytes(32).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    
+    const newUser = {
+      email,
+      passwordHash: hash,
+      salt,
+      role: 'user',
+      displayName,
+      username: username.toLowerCase(),
+      photoURL: null,
+      bio: '',
+      followers: 0,
+      following: 0,
+      verified: false,
+      active: true,
+      createdAt: new Date().toISOString(),
+      permissions: ['read', 'write'],
+      lastLogin: null,
+      passwordChangedAt: null
+    };
+    
+    const db = getFirestore();
+    await db.collection(USERS_COLLECTION).doc(email).set(newUser);
+    
+    console.log('✅ [STORAGE] New user created:', email);
+    return getUserByEmail(email);
+  } catch (error) {
+    console.error('❌ [STORAGE] Error creating user:', error);
+    throw error;
+  }
+}
+
+/**
+ * Check if username is taken
+ */
+export async function isUsernameTaken(username) {
+  try {
+    const db = getFirestore();
+    const snapshot = await db.collection(USERS_COLLECTION)
+      .where('username', '==', username.toLowerCase())
+      .limit(1)
+      .get();
+    
+    return !snapshot.empty;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error checking username:', error);
+    return false;
+  }
+}
+
+/**
+ * Get user by username
+ */
+export async function getUserByUsername(username) {
+  try {
+    const db = getFirestore();
+    const snapshot = await db.collection(USERS_COLLECTION)
+      .where('username', '==', username.toLowerCase())
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      return null;
+    }
+    
+    const user = snapshot.docs[0].data();
+    return getUserByEmail(user.email);
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting user by username:', error);
+    return null;
+  }
+}
+
+/**
+ * Update user profile
+ */
+export async function updateUserProfile(email, updates) {
+  try {
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(email);
+    
+    // Only allow updating certain fields
+    const allowedFields = ['displayName', 'bio', 'photoURL'];
+    const filteredUpdates = {};
+    
+    for (const field of allowedFields) {
+      if (updates[field] !== undefined) {
+        filteredUpdates[field] = updates[field];
+      }
+    }
+    
+    await userRef.update(filteredUpdates);
+    console.log('✅ [STORAGE] User profile updated:', email);
+    
+    return getUserByEmail(email);
+  } catch (error) {
+    console.error('❌ [STORAGE] Error updating user profile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all users (for admin)
+ */
+export async function getAllUsers(limit = 100, startAfter = null) {
+  try {
+    const db = getFirestore();
+    let query = db.collection(USERS_COLLECTION)
+      .orderBy('createdAt', 'desc')
+      .limit(limit);
+    
+    if (startAfter) {
+      query = query.startAfter(startAfter);
+    }
+    
+    const snapshot = await query.get();
+    const users = [];
+    
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      users.push({
+        email: data.email,
+        role: data.role,
+        displayName: data.displayName,
+        username: data.username,
+        photoURL: data.photoURL,
+        bio: data.bio,
+        followers: data.followers,
+        following: data.following,
+        verified: data.verified,
+        active: data.active,
+        createdAt: data.createdAt,
+        lastLogin: data.lastLogin
+      });
+    }
+    
+    return users;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting all users:', error);
+    throw error;
   }
 }

@@ -10,6 +10,7 @@ import admin from 'firebase-admin';
 let firebaseApp = null;
 let firestoreInstance = null;
 let authInstance = null;
+let storageInstance = null;
 
 /**
  * Initialize Firebase Admin SDK
@@ -77,4 +78,17 @@ export function getAuth() {
     authInstance = admin.auth();
   }
   return authInstance;
+}
+
+/**
+ * Get Firebase Storage instance (cached)
+ */
+export function getStorage() {
+  if (!storageInstance) {
+    if (!firebaseApp) {
+      initializeFirebase();
+    }
+    storageInstance = admin.storage();
+  }
+  return storageInstance;
 }
