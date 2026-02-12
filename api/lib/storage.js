@@ -39,8 +39,8 @@ async function initializeOwner() {
     // Create new owner account
     console.log('🔐 [STORAGE] Creating default OWNER account in Firestore');
     
-    // Generate random salt for new account
-    const salt = crypto.randomBytes(16).toString('hex');
+    // Generate random salt for new account (32 bytes = 64 hex characters)
+    const salt = crypto.randomBytes(32).toString('hex');
     const hash = crypto.pbkdf2Sync(defaultPassword, salt, 10000, 64, 'sha512').toString('hex');
     
     const userData = {
@@ -154,8 +154,8 @@ export async function changePassword(email, currentPassword, newPassword) {
     
     console.log('🔐 [STORAGE] Generating new password hash with random salt...');
     
-    // Generate new random salt and hash
-    const salt = crypto.randomBytes(16).toString('hex');
+    // Generate new random salt and hash (32 bytes = 64 hex characters for better security)
+    const salt = crypto.randomBytes(32).toString('hex');
     const hash = crypto.pbkdf2Sync(newPassword, salt, 10000, 64, 'sha512').toString('hex');
     
     // Update in Firestore

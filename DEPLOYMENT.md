@@ -240,10 +240,28 @@ vercel --prod
 
 ### 1. Configure Firestore Security Rules
 
-Protect your data with proper security rules:
+**Note:** This system uses Firebase Admin SDK (server-side) which bypasses Firestore security rules. The rules below are provided as reference for future enhancements if you add client-side Firebase access.
+
+For server-side only (current implementation), you can use these basic rules:
 
 ```javascript
-// Firestore Rules
+// Firestore Rules (server-side Admin SDK bypasses these)
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // All access controlled server-side via Admin SDK
+    // Client-side access disabled for security
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+```
+
+If you later add client-side Firebase Authentication:
+
+```javascript
+// Firestore Rules (for client-side access with Firebase Auth)
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {

@@ -8,6 +8,8 @@
 import admin from 'firebase-admin';
 
 let firebaseApp = null;
+let firestoreInstance = null;
+let authInstance = null;
 
 /**
  * Initialize Firebase Admin SDK
@@ -52,21 +54,27 @@ export function initializeFirebase() {
 }
 
 /**
- * Get Firestore instance
+ * Get Firestore instance (cached)
  */
 export function getFirestore() {
-  if (!firebaseApp) {
-    initializeFirebase();
+  if (!firestoreInstance) {
+    if (!firebaseApp) {
+      initializeFirebase();
+    }
+    firestoreInstance = admin.firestore();
   }
-  return admin.firestore();
+  return firestoreInstance;
 }
 
 /**
- * Get Firebase Auth instance
+ * Get Firebase Auth instance (cached)
  */
 export function getAuth() {
-  if (!firebaseApp) {
-    initializeFirebase();
+  if (!authInstance) {
+    if (!firebaseApp) {
+      initializeFirebase();
+    }
+    authInstance = admin.auth();
   }
-  return admin.auth();
+  return authInstance;
 }
