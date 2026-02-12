@@ -5,6 +5,82 @@
 
 ---
 
+## 🔐 Sistema de Autenticação
+
+O sistema agora possui autenticação completa para proteger o acesso.
+
+### 🎯 Primeiro Acesso
+
+**Credenciais Padrão do Dono:**
+- **Email:** `robertokizirian@gmail.com`
+- **Senha:** `Betinho@2026`
+- **Nível:** OWNER (privilégios máximos)
+
+⚠️ **IMPORTANTE:** Altere a senha padrão imediatamente após o primeiro login!
+
+### 📖 Como Usar
+
+1. **Login:**
+   - Acesse: `/login`
+   - Use as credenciais padrão
+   - Será redirecionado para o dashboard
+
+2. **Dashboard Admin:**
+   - Acesse: `/admin`
+   - Visualize informações do sistema
+   - Altere sua senha
+   - Faça logout
+
+3. **Alterar Senha:**
+   - No dashboard, clique em "Alterar Senha"
+   - Digite a senha atual
+   - Digite e confirme a nova senha (mínimo 8 caracteres)
+
+### 🛡️ Segurança Implementada
+
+- ✅ Hash de senha com PBKDF2 (10.000 iterações)
+- ✅ Sessões seguras com JWT
+- ✅ Cookies HttpOnly, Secure e SameSite
+- ✅ Rate limiting: 5 tentativas de login por 15 minutos
+- ✅ Validação de inputs
+- ✅ Proteção CORS configurada
+- ✅ Tokens com expiração de 24 horas
+
+### 🔌 Endpoints da API
+
+- `POST /api/auth?action=login` - Fazer login
+- `POST /api/auth?action=logout` - Fazer logout
+- `POST /api/auth?action=change-password` - Alterar senha
+- `GET /api/auth?action=verify-session` - Verificar sessão
+
+### 🎨 Páginas
+
+- `/` - Página principal (protegida, requer autenticação)
+- `/login` - Página de login
+- `/admin` - Dashboard administrativo (OWNER apenas)
+
+### ⚙️ Configuração do Deploy (Vercel)
+
+**Variáveis de Ambiente Obrigatórias:**
+
+1. **JWT_SECRET** (OBRIGATÓRIO)
+   ```bash
+   # Gere uma chave secreta forte:
+   openssl rand -base64 32
+   
+   # Configure no Vercel:
+   vercel env add JWT_SECRET
+   ```
+
+**Recomendado para Produção:**
+- Use Vercel KV ou outro storage persistente para dados do usuário
+- Configure variáveis de ambiente no dashboard do Vercel
+- Veja `.env.example` para referência completa
+
+⚠️ **AVISO**: O sistema atual usa armazenamento em memória. Alterações de senha não persistem entre reinicializações (cold starts). Para produção, implemente Vercel KV ou similar.
+
+---
+
 ## 🚀 FASE 1: Performance & Anti-Timeout (CRÍTICO)
 **Status: 7/7 ✅ COMPLETO**
 
