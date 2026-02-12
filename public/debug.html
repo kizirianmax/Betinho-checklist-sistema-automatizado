@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug - Sistema de Autenticação</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #00ff00;
+        }
+        .test { margin: 20px 0; padding: 15px; border: 1px solid #333; }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        button { padding: 10px 20px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Debug do Sistema de Autenticação</h1>
+    
+    <div class="test">
+        <h2>1. Test API Health</h2>
+        <button onclick="testHealth()">Test /api/auth</button>
+        <pre id="health-result"></pre>
+    </div>
+    
+    <div class="test">
+        <h2>2. Test Login</h2>
+        <button onclick="testLogin()">Test Login (default credentials)</button>
+        <pre id="login-result"></pre>
+    </div>
+    
+    <div class="test">
+        <h2>3. Test Session</h2>
+        <button onclick="testSession()">Test Session Verify</button>
+        <pre id="session-result"></pre>
+    </div>
+
+    <script>
+        async function testHealth() {
+            const result = document.getElementById('health-result');
+            result.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('/api/auth?action=verify-session', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                result.className = response.ok ? 'success' : 'error';
+                result.textContent = JSON.stringify({
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                }, null, 2);
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = 'ERROR: ' + error.message;
+            }
+        }
+
+        async function testLogin() {
+            const result = document.getElementById('login-result');
+            result.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('/api/auth?action=login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        email: 'robertokizirian@gmail.com',
+                        password: 'Betinho@2026'
+                    })
+                });
+                
+                const data = await response.json();
+                result.className = response.ok ? 'success' : 'error';
+                result.textContent = JSON.stringify({
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                }, null, 2);
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = 'ERROR: ' + error.message + '\nStack: ' + error.stack;
+            }
+        }
+
+        async function testSession() {
+            const result = document.getElementById('session-result');
+            result.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('/api/auth?action=verify-session', {
+                    method: 'GET',
+                    credentials: 'include'
+                });
+                
+                const data = await response.json();
+                result.className = response.ok ? 'success' : 'error';
+                result.textContent = JSON.stringify({
+                    status: response.status,
+                    ok: response.ok,
+                    data
+                }, null, 2);
+            } catch (error) {
+                result.className = 'error';
+                result.textContent = 'ERROR: ' + error.message;
+            }
+        }
+    </script>
+</body>
+</html>

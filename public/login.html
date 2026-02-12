@@ -403,6 +403,11 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
+                console.error('Error details:', {
+                    message: error.message,
+                    stack: error.stack,
+                    type: error.name
+                });
                 showAlert('Erro de conexão. Tente novamente.');
             } finally {
                 loginBtn.disabled = false;
