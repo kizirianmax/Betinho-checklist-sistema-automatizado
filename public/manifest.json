@@ -1,0 +1,25 @@
+{
+  "name": "Betinho - Sistema de Automação Híbrido",
+  "short_name": "Betinho",
+  "description": "Sistema Inteligente de Agentes - Automação Híbrida com Gemini 2.0",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
