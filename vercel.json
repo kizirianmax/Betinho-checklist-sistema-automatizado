@@ -35,6 +35,22 @@
     {
       "source": "/manifest.json",
       "destination": "/public/manifest.json"
+    },
+    {
+      "source": "/",
+      "destination": "/public/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/public/login.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/public/admin-dashboard.html"
+    },
+    {
+      "source": "/api/auth",
+      "destination": "/public/api/auth.js"
     }
   ]
 }
