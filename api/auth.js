@@ -113,6 +113,7 @@ async function handleLogin(request, ip) {
     console.log('🎯 [AUTH] Verification result:', isValid);
     
     if (!isValid) {
+      console.log('❌ [AUTH] Invalid credentials');
       recordLoginAttempt(ip);
       return new Response(
         JSON.stringify({
@@ -149,7 +150,6 @@ async function handleLogin(request, ip) {
       permissions: user.permissions
     });
     
-    console.log('[AUTH] Login successful for:', user.email);
     // Set cookie and return response
     return new Response(
       JSON.stringify({
