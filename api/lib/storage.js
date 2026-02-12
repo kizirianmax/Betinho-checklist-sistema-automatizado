@@ -24,7 +24,15 @@ let userData = null;
  */
 function initializeOwner() {
   const defaultPassword = 'Betinho@2026';
-  const salt = crypto.randomBytes(16).toString('hex');
+  
+  // Fixed salt for default owner account
+  // This ensures the password hash is always the same across cold starts
+  // ⚠️ SECURITY NOTE: This is acceptable for the default account only.
+  // When the user changes their password, a random salt will be generated.
+  // 
+  // You can override this by setting OWNER_SALT environment variable
+  const salt = process.env.OWNER_SALT || 'betinho2026fixedsaltfordefaultowner1234567890abcdef'; // 51 chars
+  
   const hash = crypto.pbkdf2Sync(defaultPassword, salt, 10000, 64, 'sha512').toString('hex');
   
   return {
@@ -44,7 +52,14 @@ function initializeOwner() {
  */
 export function getUserData() {
   if (!userData) {
+    console.log('🔐 [STORAGE] Initializing default owner account');
     userData = initializeOwner();
+    console.log('✅ [STORAGE] Owner account initialized:', {
+      email: userData.email,
+      role: userData.role,
+      hasPassword: !!userData.passwordHash,
+      hasSalt: !!userData.salt
+    });
   }
   return userData;
 }
@@ -53,14 +68,21 @@ export function getUserData() {
  * Verify password against stored hash
  */
 export function verifyPassword(email, password) {
+  console.log('🔍 [STORAGE] Verifying password for:', email);
+  
   const user = getUserData();
   
   if (user.email !== email) {
+    console.log('❌ [STORAGE] Email does not match. Expected:', user.email);
     return false;
   }
   
   const hash = crypto.pbkdf2Sync(password, user.salt, 10000, 64, 'sha512').toString('hex');
-  return hash === user.passwordHash;
+  const isValid = hash === user.passwordHash;
+  
+  console.log(isValid ? '✅ [STORAGE] Password valid' : '❌ [STORAGE] Password invalid');
+  
+  return isValid;
 }
 
 /**

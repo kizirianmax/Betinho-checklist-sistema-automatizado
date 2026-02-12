@@ -36,6 +36,17 @@ O sistema agora possui autenticação completa para proteger o acesso.
    - Digite a senha atual
    - Digite e confirme a nova senha (mínimo 8 caracteres)
 
+### 🧪 Testar Credenciais (Debug)
+
+Para verificar se as credenciais estão funcionando:
+
+1. Acesse: `/test-credentials` (disponível apenas em desenvolvimento)
+2. Verifique a resposta:
+   - ✅ `verifyPasswordResult: true` → Credenciais OK
+   - ❌ `verifyPasswordResult: false` → Problema detectado
+
+**⚠️ IMPORTANTE:** Este endpoint é automaticamente desabilitado em produção (NODE_ENV=production).
+
 ### 🛡️ Segurança Implementada
 
 - ✅ Hash de senha com PBKDF2 (10.000 iterações)
@@ -71,6 +82,23 @@ O sistema agora possui autenticação completa para proteger o acesso.
    # Configure no Vercel:
    vercel env add JWT_SECRET
    ```
+
+**Variáveis de Ambiente Opcionais:**
+
+2. **OWNER_SALT** (Opcional - Aumenta Segurança)
+   ```bash
+   # Gere um salt personalizado:
+   openssl rand -hex 32
+   
+   # Configure no Vercel:
+   vercel env add OWNER_SALT
+   ```
+   - Se não configurado, usa um salt fixo padrão
+   - Recomendado definir para ambientes de produção
+
+3. **NODE_ENV** (Automático no Vercel)
+   - Define se está em produção
+   - Desabilita endpoints de debug quando `production`
 
 **Recomendado para Produção:**
 - Use Vercel KV ou outro storage persistente para dados do usuário
