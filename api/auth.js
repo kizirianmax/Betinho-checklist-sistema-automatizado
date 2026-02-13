@@ -9,7 +9,7 @@
  * - GET /api/auth?action=verify-session
  */
 
-import { verifyPassword, changePassword, updateLastLogin, getUserByEmail } from './lib/storage.js';
+import { verifyPassword, changePassword, updateLastLogin, getUserByEmail, getUserByUsername } from './lib/storage.js';
 import { createToken, verifyToken, extractToken } from './lib/auth-middleware.js';
 
 // Rate limiting storage
@@ -78,12 +78,12 @@ async function handleLogin(request, ip) {
     const body = await request.json();
     const { email, password } = body;
     
-    console.log('📧 [AUTH] Email provided:', email);
+    console.log('📧 [AUTH] Email/Username provided:', email);
     
     // Validate input
     if (!email || !password) {
       return new Response(
-        JSON.stringify({ success: false, error: 'Email and password are required' }),
+        JSON.stringify({ success: false, error: 'Email/Username and password are required' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -107,9 +107,32 @@ async function handleLogin(request, ip) {
       );
     }
     
+    // Determine if input is email or username
+    let actualEmail = email;
+    if (!email.includes('@')) {
+      // It's a username, look up the email
+      console.log('🔍 [AUTH] Looking up username:', email);
+      const userByUsername = await getUserByUsername(email);
+      if (userByUsername) {
+        actualEmail = userByUsername.email;
+        console.log('✅ [AUTH] Found email for username:', actualEmail);
+      } else {
+        console.log('❌ [AUTH] Username not found');
+        recordLoginAttempt(ip);
+        return new Response(
+          JSON.stringify({
+            success: false,
+            error: 'Invalid email/username or password',
+            attemptsRemaining: checkRateLimit(ip).remaining
+          }),
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+    
     // Verify credentials
     console.log('🔐 [AUTH] Starting credential verification via Firebase...');
-    const isValid = await verifyPassword(email, password);
+    const isValid = await verifyPassword(actualEmail, password);
     console.log('🎯 [AUTH] Verification result:', isValid);
     
     if (!isValid) {
@@ -118,7 +141,7 @@ async function handleLogin(request, ip) {
       return new Response(
         JSON.stringify({
           success: false,
-          error: 'Invalid email or password',
+          error: 'Invalid email/username or password',
           attemptsRemaining: checkRateLimit(ip).remaining
         }),
         { status: 401, headers: { 'Content-Type': 'application/json' } }
@@ -126,7 +149,7 @@ async function handleLogin(request, ip) {
     }
     
     // Get user data
-    const user = await getUserByEmail(email);
+    const user = await getUserByEmail(actualEmail);
     if (!user) {
       return new Response(
         JSON.stringify({ success: false, error: 'User not found' }),
@@ -134,11 +157,19 @@ async function handleLogin(request, ip) {
       );
     }
     
+    // Check if user is banned
+    if (user.active === false) {
+      return new Response(
+        JSON.stringify({ success: false, error: 'Account has been suspended' }),
+        { status: 403, headers: { 'Content-Type': 'application/json' } }
+      );
+    }
+    
     // Clear failed attempts
     clearLoginAttempts(ip);
     
     // Update last login
-    await updateLastLogin(email);
+    await updateLastLogin(actualEmail);
     
     console.log('✅ [AUTH] Login SUCCESSFUL for:', user.email);
     console.log('🎫 [AUTH] Generating JWT token...');

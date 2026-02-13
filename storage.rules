@@ -1,0 +1,42 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.token.email == userId;
+    }
+    
+    // Helper function to validate image file
+    function isImage() {
+      return request.resource.contentType.matches('image/.*');
+    }
+    
+    // Helper function to validate file size (10MB max)
+    function isValidSize() {
+      return request.resource.size < 10 * 1024 * 1024;
+    }
+    
+    // User profile photos
+    match /users/{userId}/{fileName} {
+      // Anyone can read profile photos (public)
+      allow read: if true;
+      
+      // Only the user can upload/update their own photos
+      allow write: if isOwner(userId) && isImage() && isValidSize();
+      
+      // Only the user can delete their own photos
+      allow delete: if isOwner(userId);
+    }
+    
+    // Default: deny all other access
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

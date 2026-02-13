@@ -45,20 +45,28 @@
       "destination": "/public/login.html"
     },
     {
+      "source": "/signup",
+      "destination": "/public/signup.html"
+    },
+    {
       "source": "/admin",
       "destination": "/public/admin-dashboard.html"
     },
     {
-      "source": "/debug",
-      "destination": "/public/debug.html"
+      "source": "/admin-panel",
+      "destination": "/public/admin-panel.html"
     },
     {
-      "source": "/test-credentials",
-      "destination": "/api/test-credentials.js"
+      "source": "/profile/:id",
+      "destination": "/public/profile.html"
     },
     {
-      "source": "/api/test-credentials",
-      "destination": "/api/test-credentials.js"
+      "source": "/onboarding",
+      "destination": "/public/onboarding.html"
+    },
+    {
+      "source": "/users",
+      "destination": "/public/users-gallery.html"
     }
   ]
 }

@@ -86,16 +86,78 @@ O sistema agora usa **Firebase Firestore** para armazenar dados de autenticaçã
 
 ### 🔌 Endpoints da API
 
+**Authentication:**
 - `POST /api/auth?action=login` - Fazer login
 - `POST /api/auth?action=logout` - Fazer logout
 - `POST /api/auth?action=change-password` - Alterar senha
 - `GET /api/auth?action=verify-session` - Verificar sessão
 
+**Admin Panel (OWNER only):**
+- `GET /api/admin?action=users` - List all users with stats
+- `POST /api/admin?action=delete-user` - Delete user account
+- `POST /api/admin?action=ban-user` - Ban/unban user
+- `POST /api/admin?action=reset-password` - Reset user password
+- `GET /api/admin?action=analytics` - Get platform analytics
+- `GET /api/admin?action=follows` - Get all follow relationships
+- `POST /api/admin?action=delete-follow` - Delete follow relationship
+
+**User Management:**
+- `POST /api/register` - Register new user
+- `GET /api/users?username=...` - Get user by username
+- `POST /api/users?action=update-profile` - Update user profile
+- `POST /api/upload-photo` - Upload profile photo
+
+**Follow System:**
+- `POST /api/follow?action=follow` - Follow user
+- `POST /api/follow?action=unfollow` - Unfollow user
+- `GET /api/follow?action=followers&userId=...` - Get followers
+- `GET /api/follow?action=following&userId=...` - Get following
+- `GET /api/follow?action=check&userId=...` - Check if following
+
 ### 🎨 Páginas
 
 - `/` - Página principal (protegida, requer autenticação)
-- `/login` - Página de login
-- `/admin` - Dashboard administrativo (OWNER apenas)
+- `/login.html` - Página de login
+- `/signup.html` - Página de registro
+- `/admin-dashboard.html` - Dashboard administrativo (OWNER apenas)
+- `/admin-panel.html` - **NEW!** Comprehensive admin panel (OWNER apenas)
+- `/profile.html` - User profile page
+- `/users-gallery.html` - Browse all users
+
+### 🛡️ Admin Panel Features
+
+The new comprehensive admin panel (`/admin-panel.html`) provides OWNER users with complete platform management capabilities:
+
+**Tab 1: User Management**
+- View all registered users with detailed stats
+- Search and filter users by name, email, or username
+- View detailed user profiles
+- Reset user passwords
+- Ban/unban users
+- Delete user accounts (with confirmation)
+- Real-time user statistics
+
+**Tab 2: Analytics Dashboard**
+- Total users count
+- Active users (logged in last 7 days)
+- New users this week
+- Total follow relationships
+- Top 10 most followed users
+- Recent registrations list
+- Platform growth metrics
+
+**Tab 3: Follow Management**
+- View all follow relationships
+- Search by follower or following
+- Delete follow relationships
+- Follow statistics and analytics
+- Identify inactive users
+
+**Tab 4: System Configuration**
+- Platform settings (name, description)
+- Upload size limits
+- Maintenance mode toggle
+- System information display
 
 ### ⚙️ Configuração do Deploy (Vercel)
 

@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Perfil - Betinho</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 15px 20px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+        }
+
+        .header h1 i {
+            margin-right: 10px;
+        }
+
+        .header-actions button {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .header-actions button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .avatar-container {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 5px solid white;
+            object-fit: cover;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .upload-photo-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: white;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            border: 2px solid #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .upload-photo-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .upload-photo-btn i {
+            color: #667eea;
+        }
+
+        #photoInput {
+            display: none;
+        }
+
+        .profile-name {
+            color: white;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .profile-username {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .profile-bio {
+            color: rgba(255, 255, 255, 0.95);
+            font-size: 14px;
+            max-width: 500px;
+            margin: 0 auto 20px;
+            line-height: 1.6;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .stat {
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 10px 15px;
+            border-radius: 10px;
+        }
+
+        .stat:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 24px;
+            font-weight: 600;
+            color: white;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.9);
+            margin-top: 5px;
+        }
+
+        .profile-actions {
+            padding: 25px 30px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            border: none;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            font-size: 20px;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #999;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.3s;
+        }
+
+        .modal-close:hover {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .modal-body {
+            padding: 20px 25px;
+            overflow-y: auto;
+        }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .user-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .user-item:hover {
+            background: #f5f5f5;
+        }
+
+        .user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 15px;
+        }
+
+        .user-username {
+            color: #999;
+            font-size: 13px;
+            margin-top: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .loading i {
+            font-size: 32px;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            display: none;
+            animation: slideInRight 0.3s ease-out;
+            z-index: 2000;
+            max-width: 350px;
+        }
+
+        .toast.show {
+            display: block;
+        }
+
+        .toast.error {
+            border-left: 4px solid #e74c3c;
+        }
+
+        .toast.success {
+            border-left: 4px solid #27ae60;
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+            }
+
+            .profile-header {
+                padding: 30px 20px;
+            }
+
+            .avatar {
+                width: 100px;
+                height: 100px;
+                font-size: 40px;
+            }
+
+            .profile-name {
+                font-size: 24px;
+            }
+
+            .profile-stats {
+                gap: 20px;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .profile-actions {
+                padding: 20px;
+            }
+
+            .btn {
+                flex: 1;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="toast" id="toast"></div>
+
+    <div class="header">
+        <div class="header-content">
+            <h1><i class="fas fa-user-circle"></i>Perfil</h1>
+            <div class="header-actions">
+                <button onclick="window.location.href='/'">
+                    <i class="fas fa-home"></i> Início
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <div class="avatar-container">
+                    <div class="avatar" id="profileAvatar"></div>
+                    <label for="photoInput" class="upload-photo-btn" id="uploadBtn" style="display: none;">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="photoInput" accept="image/*">
+                </div>
+                <h2 class="profile-name" id="profileName">Carregando...</h2>
+                <p class="profile-username" id="profileUsername">@username</p>
+                <p class="profile-bio" id="profileBio"></p>
+                
+                <div class="profile-stats">
+                    <div class="stat" onclick="showFollowers()">
+                        <span class="stat-value" id="followersCount">0</span>
+                        <span class="stat-label">Seguidores</span>
+                    </div>
+                    <div class="stat" onclick="showFollowing()">
+                        <span class="stat-value" id="followingCount">0</span>
+                        <span class="stat-label">Seguindo</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions" id="profileActions">
+                <!-- Actions will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Followers/Following Modal -->
+    <div class="modal" id="listModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Lista</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <div class="loading">
+                    <i class="fas fa-spinner"></i>
+                    <p>Carregando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let profileUser = null;
+        let isOwnProfile = false;
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Get initials from name
+        function getInitials(name) {
+            if (!name) return '?';
+            const parts = name.trim().split(' ');
+            if (parts.length === 1) return parts[0][0].toUpperCase();
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+
+        // Set avatar
+        function setAvatar(element, user) {
+            if (user.photoURL) {
+                element.innerHTML = `<img src="${user.photoURL}" alt="${user.displayName}">`;
+            } else {
+                element.innerHTML = getInitials(user.displayName);
+                element.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                element.style.color = 'white';
+            }
+        }
+
+        // Load user profile
+        async function loadProfile() {
+            try {
+                // Get URL parameters
+                const urlParams = new URLSearchParams(window.location.search);
+                const userId = urlParams.get('id');
+                const username = urlParams.get('username');
+
+                // Verify session and get current user
+                const sessionRes = await fetch('/api/auth?action=verify-session');
+                const sessionData = await sessionRes.json();
+                
+                if (!sessionData.authenticated) {
+                    window.location.href = '/login';
+                    return;
+                }
+
+                currentUser = sessionData.user;
+
+                // Determine which profile to load
+                let targetEmail = currentUser.email;
+                if (userId || username) {
+                    // Load other user's profile
+                    const usersRes = await fetch('/api/users?action=list');
+                    const usersData = await usersRes.json();
+                    
+                    if (usersData.success) {
+                        profileUser = usersData.users.find(u => 
+                            (userId && u.email === userId) || 
+                            (username && u.username === username)
+                        );
+                        
+                        if (profileUser) {
+                            targetEmail = profileUser.email;
+                            isOwnProfile = (profileUser.email === currentUser.email);
+                        } else {
+                            showToast('Usuário não encontrado', 'error');
+                            setTimeout(() => window.location.href = '/', 2000);
+                            return;
+                        }
+                    }
+                } else {
+                    isOwnProfile = true;
+                }
+
+                // Load profile data
+                const response = await fetch(`/api/users?action=get&email=${encodeURIComponent(targetEmail)}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    profileUser = data.user;
+                    displayProfile(profileUser);
+                    await loadFollowStats();
+                } else {
+                    showToast('Erro ao carregar perfil', 'error');
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        // Display profile
+        function displayProfile(user) {
+            document.getElementById('profileName').textContent = user.displayName || 'Sem nome';
+            document.getElementById('profileUsername').textContent = `@${user.username || 'usuario'}`;
+            document.getElementById('profileBio').textContent = user.bio || '';
+            
+            if (!user.bio) {
+                document.getElementById('profileBio').style.display = 'none';
+            }
+
+            setAvatar(document.getElementById('profileAvatar'), user);
+
+            // Show/hide actions based on profile ownership
+            const actionsContainer = document.getElementById('profileActions');
+            actionsContainer.innerHTML = '';
+
+            if (isOwnProfile) {
+                // Own profile - show edit and upload buttons
+                document.getElementById('uploadBtn').style.display = 'flex';
+                
+                actionsContainer.innerHTML = `
+                    <button class="btn btn-primary" onclick="editProfile()">
+                        <i class="fas fa-edit"></i> Editar Perfil
+                    </button>
+                `;
+            } else {
+                // Other user's profile - show follow/unfollow button
+                checkFollowStatus();
+            }
+        }
+
+        // Check follow status
+        async function checkFollowStatus() {
+            try {
+                const response = await fetch(`/api/follow?action=check&targetEmail=${encodeURIComponent(profileUser.email)}`);
+                const data = await response.json();
+
+                const actionsContainer = document.getElementById('profileActions');
+                
+                if (data.isFollowing) {
+                    actionsContainer.innerHTML = `
+                        <button class="btn btn-danger" onclick="unfollowUser()">
+                            <i class="fas fa-user-minus"></i> Deixar de seguir
+                        </button>
+                    `;
+                } else {
+                    actionsContainer.innerHTML = `
+                        <button class="btn btn-primary" onclick="followUser()">
+                            <i class="fas fa-user-plus"></i> Seguir
+                        </button>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking follow status:', error);
+            }
+        }
+
+        // Follow user
+        async function followUser() {
+            try {
+                const response = await fetch('/api/follow?action=follow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetEmail: profileUser.email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Agora você está seguindo ' + profileUser.displayName, 'success');
+                    checkFollowStatus();
+                    loadFollowStats();
+                } else {
+                    showToast(data.error || 'Erro ao seguir usuário', 'error');
+                }
+            } catch (error) {
+                console.error('Error following user:', error);
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        // Unfollow user
+        async function unfollowUser() {
+            try {
+                const response = await fetch('/api/follow?action=unfollow', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ targetEmail: profileUser.email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Você deixou de seguir ' + profileUser.displayName, 'success');
+                    checkFollowStatus();
+                    loadFollowStats();
+                } else {
+                    showToast(data.error || 'Erro ao deixar de seguir', 'error');
+                }
+            } catch (error) {
+                console.error('Error unfollowing user:', error);
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        // Load follow stats
+        async function loadFollowStats() {
+            try {
+                const [followersRes, followingRes] = await Promise.all([
+                    fetch(`/api/follow?action=followers&targetEmail=${encodeURIComponent(profileUser.email)}`),
+                    fetch(`/api/follow?action=following&targetEmail=${encodeURIComponent(profileUser.email)}`)
+                ]);
+
+                const followersData = await followersRes.json();
+                const followingData = await followingRes.json();
+
+                if (followersData.success) {
+                    document.getElementById('followersCount').textContent = followersData.followers.length;
+                }
+
+                if (followingData.success) {
+                    document.getElementById('followingCount').textContent = followingData.following.length;
+                }
+            } catch (error) {
+                console.error('Error loading follow stats:', error);
+            }
+        }
+
+        // Show followers modal
+        async function showFollowers() {
+            const modal = document.getElementById('listModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            document.getElementById('modalTitle').textContent = 'Seguidores';
+            modalBody.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Carregando...</p></div>';
+            modal.classList.add('show');
+
+            try {
+                const response = await fetch(`/api/follow?action=followers&targetEmail=${encodeURIComponent(profileUser.email)}`);
+                const data = await response.json();
+
+                if (data.success && data.followers.length > 0) {
+                    modalBody.innerHTML = '<div class="user-list">' +
+                        data.followers.map(user => `
+                            <div class="user-item" onclick="window.location.href='/profile/${user.email}'">
+                                <div class="user-avatar">${user.photoURL ? 
+                                    `<img src="${user.photoURL}" alt="${user.displayName}">` : 
+                                    getInitials(user.displayName)
+                                }</div>
+                                <div class="user-info">
+                                    <div class="user-name">${user.displayName}</div>
+                                    <div class="user-username">@${user.username}</div>
+                                </div>
+                            </div>
+                        `).join('') +
+                    '</div>';
+                } else {
+                    modalBody.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Nenhum seguidor ainda</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading followers:', error);
+                modalBody.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Erro ao carregar seguidores</p></div>';
+            }
+        }
+
+        // Show following modal
+        async function showFollowing() {
+            const modal = document.getElementById('listModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            document.getElementById('modalTitle').textContent = 'Seguindo';
+            modalBody.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i><p>Carregando...</p></div>';
+            modal.classList.add('show');
+
+            try {
+                const response = await fetch(`/api/follow?action=following&targetEmail=${encodeURIComponent(profileUser.email)}`);
+                const data = await response.json();
+
+                if (data.success && data.following.length > 0) {
+                    modalBody.innerHTML = '<div class="user-list">' +
+                        data.following.map(user => `
+                            <div class="user-item" onclick="window.location.href='/profile/${user.email}'">
+                                <div class="user-avatar">${user.photoURL ? 
+                                    `<img src="${user.photoURL}" alt="${user.displayName}">` : 
+                                    getInitials(user.displayName)
+                                }</div>
+<div class="user-info">
+                                    <div class="user-name">${user.displayName}</div>
+                                    <div class="user-username">@${user.username}</div>
+                                </div>
+                            </div>
+                        `).join('') +
+                    '</div>';
+                } else {
+                    modalBody.innerHTML = '<div class="empty-state"><i class="fas fa-users"></i><p>Não está seguindo ninguém ainda</p></div>';
+                }
+            } catch (error) {
+                console.error('Error loading following:', error);
+                modalBody.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Erro ao carregar lista</p></div>';
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('listModal').classList.remove('show');
+        }
+
+        // Edit profile
+        function editProfile() {
+            const name = prompt('Nome completo:', profileUser.displayName);
+            if (name === null) return;
+
+            const bio = prompt('Bio:', profileUser.bio || '');
+            if (bio === null) return;
+
+            updateProfile({ displayName: name, bio: bio });
+        }
+
+        // Update profile
+        async function updateProfile(updates) {
+            try {
+                const response = await fetch('/api/users?action=update', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updates)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Perfil atualizado com sucesso!', 'success');
+                    loadProfile();
+                } else {
+                    showToast(data.error || 'Erro ao atualizar perfil', 'error');
+                }
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+        }
+
+        // Upload photo
+        document.getElementById('photoInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showToast('Imagem muito grande. Máximo: 5MB', 'error');
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showToast('Por favor, selecione uma imagem', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('photo', file);
+
+            try {
+                showToast('Enviando foto...', 'success');
+                
+                const response = await fetch('/api/upload-photo', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showToast('Foto atualizada com sucesso!', 'success');
+                    loadProfile();
+                } else {
+                    showToast(data.error || 'Erro ao enviar foto', 'error');
+                }
+            } catch (error) {
+                console.error('Error uploading photo:', error);
+                showToast('Erro ao conectar com o servidor', 'error');
+            }
+
+            e.target.value = '';
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('listModal').addEventListener('click', (e) => {
+            if (e.target.id === 'listModal') {
+                closeModal();
+            }
+        });
+
+        // Load profile on page load
+        loadProfile();
+    </script>
+</body>
+</html>

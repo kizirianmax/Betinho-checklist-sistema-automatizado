@@ -48,6 +48,14 @@ async function initializeOwner() {
       passwordHash: hash,
       salt: salt,
       role: 'OWNER',
+      displayName: 'Roberto Kizirian Max',
+      username: 'robertomax',
+      photoURL: null,
+      bio: '',
+      followers: 0,
+      following: 0,
+      verified: true,
+      active: true,
       createdAt: new Date().toISOString(),
       permissions: ['*'],
       lastLogin: null,
@@ -212,6 +220,14 @@ export async function getUserByEmail(email) {
     return {
       email: user.email,
       role: user.role,
+      displayName: user.displayName,
+      username: user.username,
+      photoURL: user.photoURL,
+      bio: user.bio,
+      followers: user.followers,
+      following: user.following,
+      verified: user.verified,
+      active: user.active,
       permissions: user.permissions,
       createdAt: user.createdAt,
       lastLogin: user.lastLogin,
@@ -220,5 +236,387 @@ export async function getUserByEmail(email) {
   } catch (error) {
     console.error('❌ [STORAGE] Error getting user by email:', error);
     return null;
+  }
+}
+
+/**
+ * Create a new user
+ */
+export async function createUser(userData) {
+  try {
+    const { email, password, displayName, username } = userData;
+    
+    // Validate required fields
+    if (!email || !password || !displayName || !username) {
+      throw new Error('Missing required fields');
+    }
+    
+    // Check if email already exists
+    const existingUser = await getUserData(email);
+    if (existingUser) {
+      throw new Error('Email already registered');
+    }
+    
+    // Check if username already exists
+    const usernameExists = await isUsernameTaken(username);
+    if (usernameExists) {
+      throw new Error('Username already taken');
+    }
+    
+    // Generate salt and hash password
+    const salt = crypto.randomBytes(32).toString('hex');
+    const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    
+    const newUser = {
+      email,
+      passwordHash: hash,
+      salt,
+      role: 'user',
+      displayName,
+      username: username.toLowerCase(),
+      photoURL: null,
+      bio: '',
+      followers: 0,
+      following: 0,
+      verified: false,
+      active: true,
+      createdAt: new Date().toISOString(),
+      permissions: ['read', 'write'],
+      lastLogin: null,
+      passwordChangedAt: null
+    };
+    
+    const db = getFirestore();
+    await db.collection(USERS_COLLECTION).doc(email).set(newUser);
+    
+    console.log('✅ [STORAGE] New user created:', email);
+    return getUserByEmail(email);
+  } catch (error) {
+    console.error('❌ [STORAGE] Error creating user:', error);
+    throw error;
+  }
+}
+
+/**
+ * Check if username is taken
+ */
+export async function isUsernameTaken(username) {
+  try {
+    const db = getFirestore();
+    const snapshot = await db.collection(USERS_COLLECTION)
+      .where('username', '==', username.toLowerCase())
+      .limit(1)
+      .get();
+    
+    return !snapshot.empty;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error checking username:', error);
+    return false;
+  }
+}
+
+/**
+ * Get user by username
+ */
+export async function getUserByUsername(username) {
+  try {
+    const db = getFirestore();
+    const snapshot = await db.collection(USERS_COLLECTION)
+      .where('username', '==', username.toLowerCase())
+      .limit(1)
+      .get();
+    
+    if (snapshot.empty) {
+      return null;
+    }
+    
+    const user = snapshot.docs[0].data();
+    return getUserByEmail(user.email);
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting user by username:', error);
+    return null;
+  }
+}
+
+/**
+ * Update user profile
+ */
+export async function updateUserProfile(email, updates) {
+  try {
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(email);
+    
+    // Only allow updating certain fields
+    const allowedFields = ['displayName', 'bio', 'photoURL'];
+    const filteredUpdates = {};
+    
+    for (const field of allowedFields) {
+      if (updates[field] !== undefined) {
+        filteredUpdates[field] = updates[field];
+      }
+    }
+    
+    await userRef.update(filteredUpdates);
+    console.log('✅ [STORAGE] User profile updated:', email);
+    
+    return getUserByEmail(email);
+  } catch (error) {
+    console.error('❌ [STORAGE] Error updating user profile:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all users (for admin)
+ */
+export async function getAllUsers(limit = 100, startAfter = null) {
+  try {
+    const db = getFirestore();
+    let query = db.collection(USERS_COLLECTION)
+      .orderBy('createdAt', 'desc')
+      .limit(limit);
+    
+    if (startAfter) {
+      query = query.startAfter(startAfter);
+    }
+    
+    const snapshot = await query.get();
+    const users = [];
+    
+    for (const doc of snapshot.docs) {
+      const data = doc.data();
+      users.push({
+        email: data.email,
+        role: data.role,
+        displayName: data.displayName,
+        username: data.username,
+        photoURL: data.photoURL,
+        bio: data.bio,
+        followers: data.followers,
+        following: data.following,
+        verified: data.verified,
+        active: data.active,
+        createdAt: data.createdAt,
+        lastLogin: data.lastLogin
+      });
+    }
+    
+    return users;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting all users:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a user account (for admin)
+ */
+export async function deleteUser(email) {
+  try {
+    const db = getFirestore();
+    
+    // Delete user document
+    await db.collection(USERS_COLLECTION).doc(email).delete();
+    
+    // Note: Follow relationships should be cleaned up separately
+    console.log('✅ [STORAGE] User deleted:', email);
+    return true;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error deleting user:', error);
+    throw error;
+  }
+}
+
+/**
+ * Update user status (for admin - ban/unban)
+ */
+export async function updateUserStatus(email, active) {
+  try {
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(email);
+    
+    await userRef.update({
+      active: active
+    });
+    
+    console.log('✅ [STORAGE] User status updated:', email, 'active:', active);
+    return true;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error updating user status:', error);
+    throw error;
+  }
+}
+
+/**
+ * Reset user password (for admin)
+ */
+export async function resetUserPassword(email, newPassword) {
+  try {
+    const user = await getUserData(email);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    // Validate new password
+    if (newPassword.length < 8) {
+      throw new Error('New password must be at least 8 characters');
+    }
+    
+    console.log('🔐 [STORAGE] Admin resetting password for:', email);
+    
+    // Generate new random salt and hash
+    const salt = crypto.randomBytes(32).toString('hex');
+    const hash = crypto.pbkdf2Sync(newPassword, salt, 10000, 64, 'sha512').toString('hex');
+    
+    // Update in Firestore
+    const db = getFirestore();
+    const userRef = db.collection(USERS_COLLECTION).doc(email);
+    
+    await userRef.update({
+      passwordHash: hash,
+      salt: salt,
+      passwordChangedAt: new Date().toISOString()
+    });
+    
+    console.log('✅ [STORAGE] Password reset successfully by admin');
+    return true;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error resetting password:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get platform analytics (for admin)
+ */
+export async function getAnalytics() {
+  try {
+    const db = getFirestore();
+    
+    // Get all users
+    const usersSnapshot = await db.collection(USERS_COLLECTION).get();
+    const totalUsers = usersSnapshot.size;
+    
+    // Calculate active users (logged in last 7 days)
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    const sevenDaysAgoISO = sevenDaysAgo.toISOString();
+    
+    let activeUsers = 0;
+    let newUsersThisWeek = 0;
+    const users = [];
+    
+    for (const doc of usersSnapshot.docs) {
+      const data = doc.data();
+      users.push(data);
+      
+      if (data.lastLogin && data.lastLogin > sevenDaysAgoISO) {
+        activeUsers++;
+      }
+      
+      if (data.createdAt && data.createdAt > sevenDaysAgoISO) {
+        newUsersThisWeek++;
+      }
+    }
+    
+    // Get total follows
+    const followsSnapshot = await db.collection('follows').get();
+    const totalFollows = followsSnapshot.size;
+    
+    // Sort users by followers
+    const topUsers = users
+      .sort((a, b) => (b.followers || 0) - (a.followers || 0))
+      .slice(0, 10)
+      .map(u => ({
+        email: u.email,
+        displayName: u.displayName,
+        username: u.username,
+        followers: u.followers || 0
+      }));
+    
+    // Recent registrations
+    const recentUsers = users
+      .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+      .slice(0, 10)
+      .map(u => ({
+        email: u.email,
+        displayName: u.displayName,
+        username: u.username,
+        createdAt: u.createdAt
+      }));
+    
+    return {
+      totalUsers,
+      activeUsers,
+      newUsersThisWeek,
+      totalFollows,
+      averageFollowsPerUser: totalUsers > 0 ? (totalFollows / totalUsers).toFixed(2) : 0,
+      topUsers,
+      recentUsers
+    };
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting analytics:', error);
+    throw error;
+  }
+}
+
+/**
+ * Get all follow relationships (for admin)
+ */
+export async function getAllFollows() {
+  try {
+    const db = getFirestore();
+    const snapshot = await db.collection('follows')
+      .orderBy('createdAt', 'desc')
+      .get();
+    
+    const follows = [];
+    for (const doc of snapshot.docs) {
+      follows.push({
+        id: doc.id,
+        ...doc.data()
+      });
+    }
+    
+    return follows;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error getting all follows:', error);
+    throw error;
+  }
+}
+
+/**
+ * Delete follow relationship (for admin)
+ */
+export async function deleteFollow(followerId, followingId) {
+  try {
+    const db = getFirestore();
+    const followId = `${followerId}_${followingId}`;
+    
+    const batch = db.batch();
+    
+    // Delete follow document
+    const followRef = db.collection('follows').doc(followId);
+    batch.delete(followRef);
+    
+    // Update counters
+    const followerRef = db.collection(USERS_COLLECTION).doc(followerId);
+    batch.update(followerRef, {
+      following: db.FieldValue.increment(-1)
+    });
+    
+    const followingRef = db.collection(USERS_COLLECTION).doc(followingId);
+    batch.update(followingRef, {
+      followers: db.FieldValue.increment(-1)
+    });
+    
+    await batch.commit();
+    
+    console.log('✅ [STORAGE] Follow relationship deleted');
+    return true;
+  } catch (error) {
+    console.error('❌ [STORAGE] Error deleting follow:', error);
+    throw error;
   }
 }
