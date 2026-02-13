@@ -14,7 +14,7 @@ service cloud.firestore {
     }
     
     // Helper function to check if user owns the resource
-    function isOwner UserResource(userId) {
+    function isOwnerUserResource(userId) {
       return isAuthenticated() && request.auth.token.email == userId;
     }
     

@@ -204,15 +204,16 @@ async function handleUnfollow(request) {
 
 /**
  * Get followers list
+ * Note: userId parameter expects an email address (email is used as userId throughout the system)
  */
 async function handleGetFollowers(request) {
   try {
     const url = new URL(request.url);
-    const userId = url.searchParams.get('userId');
+    const userId = url.searchParams.get('userId'); // userId = email address
     
     if (!userId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'User ID is required' }),
+        JSON.stringify({ success: false, error: 'User ID (email) is required' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -253,15 +254,16 @@ async function handleGetFollowers(request) {
 
 /**
  * Get following list
+ * Note: userId parameter expects an email address (email is used as userId throughout the system)
  */
 async function handleGetFollowing(request) {
   try {
     const url = new URL(request.url);
-    const userId = url.searchParams.get('userId');
+    const userId = url.searchParams.get('userId'); // userId = email address
     
     if (!userId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'User ID is required' }),
+        JSON.stringify({ success: false, error: 'User ID (email) is required' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
@@ -302,6 +304,7 @@ async function handleGetFollowing(request) {
 
 /**
  * Check if following a user
+ * Note: userId parameter expects an email address (email is used as userId throughout the system)
  */
 async function handleCheckFollow(request) {
   try {
@@ -323,11 +326,11 @@ async function handleCheckFollow(request) {
     }
     
     const url = new URL(request.url);
-    const userId = url.searchParams.get('userId');
+    const userId = url.searchParams.get('userId'); // userId = email address
     
     if (!userId) {
       return new Response(
-        JSON.stringify({ success: false, error: 'User ID is required' }),
+        JSON.stringify({ success: false, error: 'User ID (email) is required' }),
         { status: 400, headers: { 'Content-Type': 'application/json' } }
       );
     }
