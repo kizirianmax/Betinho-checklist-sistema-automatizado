@@ -530,11 +530,11 @@
         // Initialize page with user data
         async function initializePage() {
             // Update user info in navbar
-            document.getElementById('userName').textContent = currentUser.displayName || currentUser.name || 'User';
-            document.getElementById('userAvatar').src = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || currentUser.name)}&background=667eea&color=fff&size=80`;
+            document.getElementById('userName').textContent = currentUser.displayName || 'User';
+            document.getElementById('userAvatar').src = currentUser.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentUser.displayName || 'User')}&background=667eea&color=fff&size=80`;
             
             // Update profile links
-            const profileUrl = `/profile?id=${currentUser.id}`;
+            const profileUrl = `/profile?id=${currentUser.email}`;
             document.getElementById('profileLink').href = profileUrl;
             document.getElementById('dropdownProfileLink').href = profileUrl;
 
@@ -557,14 +557,14 @@
         async function loadStats() {
             try {
                 // Load followers
-                const followersRes = await fetch(`/api/follow?action=followers&userId=${currentUser.id}`, {
+                const followersRes = await fetch(`/api/follow?action=followers&userId=${encodeURIComponent(currentUser.email)}`, {
                     credentials: 'include'
                 });
                 const followersData = await followersRes.json();
                 document.getElementById('followersCount').textContent = followersData.followers?.length || 0;
 
                 // Load following
-                const followingRes = await fetch(`/api/follow?action=following&userId=${currentUser.id}`, {
+                const followingRes = await fetch(`/api/follow?action=following&userId=${encodeURIComponent(currentUser.email)}`, {
                     credentials: 'include'
                 });
                 const followingData = await followingRes.json();
@@ -591,7 +591,7 @@
 
                 if (data.users && data.users.length > 0) {
                     // Filter out current user and get 6 random users
-                    const otherUsers = data.users.filter(u => u.id !== currentUser.id);
+                    const otherUsers = data.users.filter(u => u.email !== currentUser.email);
                     const recentUsers = otherUsers.slice(0, 6);
                     displayUsers(recentUsers);
                 }
@@ -608,13 +608,13 @@
             users.forEach(user => {
                 const userCard = document.createElement('div');
                 userCard.className = 'user-card';
-                userCard.onclick = () => window.location.href = `/profile?id=${user.id}`;
+                userCard.onclick = () => window.location.href = `/profile?id=${encodeURIComponent(user.email)}`;
 
-                const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || user.name)}&background=667eea&color=fff&size=160`;
+                const avatar = user.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.displayName || 'User')}&background=667eea&color=fff&size=160`;
                 
                 userCard.innerHTML = `
-                    <img src="${avatar}" alt="${user.displayName || user.name}">
-                    <h4>${user.displayName || user.name}</h4>
+                    <img src="${avatar}" alt="${user.displayName || 'User'}">
+                    <h4>${user.displayName || 'User'}</h4>
                     <p>@${user.username || user.email.split('@')[0]}</p>
                 `;
 
