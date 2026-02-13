@@ -259,16 +259,16 @@
 
         <form id="loginForm">
             <div class="form-group">
-                <label for="email">Email</label>
+                <label for="email">Email ou Nome de Usuário</label>
                 <div class="input-wrapper">
-                    <i class="fas fa-envelope"></i>
+                    <i class="fas fa-user"></i>
                     <input 
-                        type="email" 
+                        type="text" 
                         id="email" 
                         name="email" 
-                        placeholder="seu@email.com"
+                        placeholder="email@exemplo.com ou usuario"
                         required
-                        autocomplete="email"
+                        autocomplete="username"
                     >
                 </div>
                 <div id="emailError" class="error-message"></div>
@@ -299,6 +299,12 @@
                 <p style="margin-top: 10px; color: #666;">Autenticando...</p>
             </div>
         </form>
+
+        <div style="text-align: center; margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+            <p style="color: #666; font-size: 14px;">
+                Não tem uma conta? <a href="/signup" style="color: #667eea; text-decoration: none; font-weight: 600;">Criar conta</a>
+            </p>
+        </div>
 
         <div class="footer">
             <p>&copy; 2026 Betinho Sistema. Todos os direitos reservados.</p>
@@ -357,8 +363,8 @@
             clearRateLimit();
 
             // Validate inputs
-            if (!validateEmail(email)) {
-                showAlert('Por favor, insira um email válido');
+            if (!email) {
+                showAlert('Por favor, insira seu email ou nome de usuário');
                 emailInput.focus();
                 return;
             }
